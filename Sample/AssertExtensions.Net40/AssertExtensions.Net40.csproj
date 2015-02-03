@@ -9,7 +9,7 @@
     <ProjectGuid>{532166A3-1043-4167-9E7C-2A02AE2BB2C0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AssertExtensions</RootNamespace>
+    <RootNamespace>AssertExtensions40</RootNamespace>
     <AssemblyName>AssertExtensions</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -68,16 +68,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Deploy\net40\xunit.abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.assert, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Deploy\net40\xunit.assert.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Deploy\net40\xunit.core.dll</HintPath>
+      <HintPath>..\..\packages\xunit.abstractions.2.0.0-rc1-build2840\lib\net35\xunit.abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +87,16 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\xunit.assert.net40\xunit.assert.Net40.csproj">
+      <Project>{976c6008-e103-4014-906f-659ae0a42b3f}</Project>
+      <Name>xunit.assert.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\xunit.core.net40\xunit.core.Net40.csproj">
+      <Project>{7503f489-c722-4527-a623-08b3fc5c72cf}</Project>
+      <Name>xunit.core.Net40</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

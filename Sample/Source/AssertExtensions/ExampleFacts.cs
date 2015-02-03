@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Xunit;
 using Xunit.Extensions.AssertExtensions;
 
-
 #if NET40
-namespace AssertExtensibility40
+namespace AssertExtensions40
 #else
-namespace AssertExtensibility45
+namespace AssertExtensions45
 #endif
 {
 	public class ExampleFacts
@@ -36,7 +36,7 @@ namespace AssertExtensibility45
 
 				Exception exception = Record.Exception(() => val.ShouldBeTrue("should be true"));
 
-				Assert.Equal("should be true", exception.Message);
+				Assert.Equal("should be true", exception.Message.Split(Environment.NewLine.ToArray())[0]);
 			}
 
 			[Fact]
@@ -46,7 +46,7 @@ namespace AssertExtensibility45
 
 				Exception exception = Record.Exception(() => val.ShouldBeFalse("should be false"));
 
-				Assert.Equal("should be false", exception.Message);
+				Assert.Equal("should be false", exception.Message.Split(Environment.NewLine.ToArray())[0]);
 			}
 		}
 	}
