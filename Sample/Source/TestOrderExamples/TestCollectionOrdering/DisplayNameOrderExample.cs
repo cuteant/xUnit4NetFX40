@@ -1,71 +1,79 @@
 ﻿using Xunit;
 
+#if NET40
 // Set the orderer
-[assembly: TestCollectionOrderer("DisplayNameOrderer", "TestOrderExamples")]
+[assembly: TestCollectionOrderer("TestOrderExamples40.DisplayNameOrderer", "TestOrderExamples")]
+#else
+// Set the orderer
+[assembly: TestCollectionOrderer("TestOrderExamples45.DisplayNameOrderer", "TestOrderExamples")]
+#endif
 
 // Need to turn off test parallelization so we can validate the run order
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 #if NET40
-public class DisplayNameOrderExample40
+namespace TestOrderExamples40
 #else
-public class DisplayNameOrderExample45
+namespace TestOrderExamples45
 #endif
 {
-	[CollectionDefinition("Xyz Test Collection")]
-	public class Collection1 { }
-
-	[Collection("Xzy Test Collection")]
-	public class TestsInCollection1
+	public class DisplayNameOrderExample
 	{
-		public static bool Collection1Run;
+		[CollectionDefinition("Xyz Test Collection")]
+		public class Collection1 { }
 
-		[Fact]
-		public static void Test()
+		[Collection("Xzy Test Collection")]
+		public class TestsInCollection1
 		{
-			Assert.True(TestsInCollection2.Collection2Run);     // Abc
-			Assert.True(TestsInCollection3.Collection3Run);     // Mno
-			Assert.False(TestsInCollection1.Collection1Run);    // Xyz
+			public static bool Collection1Run;
 
-			Collection1Run = true;
+			[Fact]
+			public static void Test()
+			{
+				Assert.True(TestsInCollection2.Collection2Run);     // Abc
+				Assert.True(TestsInCollection3.Collection3Run);     // Mno
+				Assert.False(TestsInCollection1.Collection1Run);    // Xyz
+
+				Collection1Run = true;
+			}
 		}
-	}
 
-	[CollectionDefinition("Abc Test Collection")]
-	public class Collection2 { }
+		[CollectionDefinition("Abc Test Collection")]
+		public class Collection2 { }
 
-	[Collection("Abc Test Collection")]
-	public class TestsInCollection2
-	{
-		public static bool Collection2Run;
-
-		[Fact]
-		public static void Test()
+		[Collection("Abc Test Collection")]
+		public class TestsInCollection2
 		{
-			Assert.False(TestsInCollection2.Collection2Run);    // Abc
-			Assert.False(TestsInCollection3.Collection3Run);    // Mno
-			Assert.False(TestsInCollection1.Collection1Run);    // Xyz
+			public static bool Collection2Run;
 
-			Collection2Run = true;
+			[Fact]
+			public static void Test()
+			{
+				Assert.False(TestsInCollection2.Collection2Run);    // Abc
+				Assert.False(TestsInCollection3.Collection3Run);    // Mno
+				Assert.False(TestsInCollection1.Collection1Run);    // Xyz
+
+				Collection2Run = true;
+			}
 		}
-	}
 
-	[CollectionDefinition("Mno Test Collection")]
-	public class Collection3 { }
+		[CollectionDefinition("Mno Test Collection")]
+		public class Collection3 { }
 
-	[Collection("Mno Test Collection")]
-	public class TestsInCollection3
-	{
-		public static bool Collection3Run;
-
-		[Fact]
-		public static void Test()
+		[Collection("Mno Test Collection")]
+		public class TestsInCollection3
 		{
-			Assert.True(TestsInCollection2.Collection2Run);     // Abc
-			Assert.False(TestsInCollection3.Collection3Run);    // Mno
-			Assert.False(TestsInCollection1.Collection1Run);    // Xyz
+			public static bool Collection3Run;
 
-			Collection3Run = true;
+			[Fact]
+			public static void Test()
+			{
+				Assert.True(TestsInCollection2.Collection2Run);     // Abc
+				Assert.False(TestsInCollection3.Collection3Run);    // Mno
+				Assert.False(TestsInCollection1.Collection1Run);    // Xyz
+
+				Collection3Run = true;
+			}
 		}
 	}
 }

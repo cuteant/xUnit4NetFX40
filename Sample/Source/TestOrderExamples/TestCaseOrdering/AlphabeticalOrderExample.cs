@@ -1,40 +1,45 @@
 ﻿using Xunit;
 
-[TestCaseOrderer("AlphabeticalOrderer", "TestOrderExamples")]
 #if NET40
-public class AlphabeticalOrderExample40
-#else
-public class AlphabeticalOrderExample45
-#endif
+namespace TestOrderExamples40
 {
-	public static bool Test1Called;
-	public static bool Test2Called;
-	public static bool Test3Called;
-
-	[Fact]
-	public void Test1()
+	[TestCaseOrderer("TestOrderExamples40.AlphabeticalOrderer", "TestOrderExamples")]
+#else
+namespace TestOrderExamples45
+{
+	[TestCaseOrderer("TestOrderExamples45.AlphabeticalOrderer", "TestOrderExamples")]
+#endif
+	public class AlphabeticalOrderExample
 	{
-		Test1Called = true;
+		public static bool Test1Called;
+		public static bool Test2Called;
+		public static bool Test3Called;
 
-		Assert.False(Test2Called);
-		Assert.False(Test3Called);
-	}
+		[Fact]
+		public void Test1()
+		{
+			Test1Called = true;
 
-	[Fact]
-	public void Test2()
-	{
-		Test2Called = true;
+			Assert.False(Test2Called);
+			Assert.False(Test3Called);
+		}
 
-		Assert.True(Test1Called);
-		Assert.False(Test3Called);
-	}
+		[Fact]
+		public void Test2()
+		{
+			Test2Called = true;
 
-	[Fact]
-	public void Test3()
-	{
-		Test3Called = true;
+			Assert.True(Test1Called);
+			Assert.False(Test3Called);
+		}
 
-		Assert.True(Test1Called);
-		Assert.True(Test2Called);
+		[Fact]
+		public void Test3()
+		{
+			Test3Called = true;
+
+			Assert.True(Test1Called);
+			Assert.True(Test2Called);
+		}
 	}
 }
