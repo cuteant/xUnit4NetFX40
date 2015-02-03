@@ -19,22 +19,22 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <IntermediateOutputPath>obj\Debug\Net40</IntermediateOutputPath>
-    <OutputPath>..\Deploy\Net40\</OutputPath>
+    <IntermediateOutputPath>obj\Debug\net40</IntermediateOutputPath>
+    <OutputPath>..\Deploy\net40\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET_4_0;NET_3_5_ABOVE;NET_4_5_BELOW;XUNIT_CORE_DLL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Deploy\Net40\xunit.core.XML</DocumentationFile>
+    <DocumentationFile>..\Deploy\net40\xunit.core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <IntermediateOutputPath>obj\Release\Net40</IntermediateOutputPath>
-    <OutputPath>..\Deploy\Net40\</OutputPath>
+    <IntermediateOutputPath>obj\Release\net40</IntermediateOutputPath>
+    <OutputPath>..\Deploy\net40\</OutputPath>
     <DefineConstants>TRACE;NET_4_0;NET_3_5_ABOVE;NET_4_5_BELOW;XUNIT_CORE_DLL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Deploy\Net40\xunit.core.XML</DocumentationFile>
+    <DocumentationFile>..\Deploy\net40\xunit.core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -104,7 +104,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\common\Net40\xunit.core.props">
+    <Content Include="..\common\net40\xunit.core.props">
       <Link>xunit.core.props</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

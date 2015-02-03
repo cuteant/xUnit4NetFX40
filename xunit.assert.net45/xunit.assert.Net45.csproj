@@ -18,22 +18,22 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <IntermediateOutputPath>obj\Debug\Net45</IntermediateOutputPath>
-    <OutputPath>..\Deploy\Net45\</OutputPath>
+    <IntermediateOutputPath>obj\Debug\net45</IntermediateOutputPath>
+    <OutputPath>..\Deploy\net45\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET_4_5_X;NET_3_5_ABOVE;NET_4_0_ABOVE;NEW_REFLECTION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Deploy\Net45\xunit.assert.XML</DocumentationFile>
+    <DocumentationFile>..\Deploy\net45\xunit.assert.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <IntermediateOutputPath>obj\Release\Net45</IntermediateOutputPath>
-    <OutputPath>..\Deploy\Net45\</OutputPath>
+    <IntermediateOutputPath>obj\Release\net45</IntermediateOutputPath>
+    <OutputPath>..\Deploy\net45\</OutputPath>
     <DefineConstants>TRACE;NET_4_5_X;NET_3_5_ABOVE;NET_4_0_ABOVE;NEW_REFLECTION</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Deploy\Net45\xunit.assert.XML</DocumentationFile>
+    <DocumentationFile>..\Deploy\net45\xunit.assert.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
