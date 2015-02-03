@@ -2,18 +2,25 @@
 using Xunit;
 using Xunit.Abstractions;
 
-public class Example
+#if NET40
+namespace TestOutputExample40
+#else
+namespace TestOutputExample45
+#endif
 {
-    ITestOutputHelper output;
+	public class Example
+	{
+		ITestOutputHelper output;
 
-    public Example(ITestOutputHelper output)
-    {
-        this.output = output;
-    }
+		public Example(ITestOutputHelper output)
+		{
+			this.output = output;
+		}
 
-    [Fact]
-    public void TestThis()
-    {
-        output.WriteLine("I'm inside the test!");
-    }
+		[Fact]
+		public void TestThis()
+		{
+			output.WriteLine("I'm inside the test!");
+		}
+	}
 }
