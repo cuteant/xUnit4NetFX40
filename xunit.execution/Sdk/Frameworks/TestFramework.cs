@@ -76,7 +76,7 @@ namespace Xunit.Sdk
 			return executor;
 		}
 
-		class NullSourceInformationProvider : ISourceInformationProvider
+		private class NullSourceInformationProvider : ISourceInformationProvider
 		{
 			public static readonly NullSourceInformationProvider Instance = new NullSourceInformationProvider();
 
@@ -85,7 +85,9 @@ namespace Xunit.Sdk
 				return new SourceInformation();
 			}
 
-			public void Dispose() { }
+			public void Dispose()
+			{
+			}
 		}
 	}
 }

@@ -12,13 +12,13 @@ namespace Xunit.Sdk
 	/// </summary>
 	internal static class ArgumentFormatter
 	{
-		const int MAX_DEPTH = 3;
-		const int MAX_ENUMERABLE_LENGTH = 5;
-		const int MAX_OBJECT_PARAMETER_COUNT = 5;
-		const int MAX_STRING_LENGTH = 50;
+		private const int MAX_DEPTH = 3;
+		private const int MAX_ENUMERABLE_LENGTH = 5;
+		private const int MAX_OBJECT_PARAMETER_COUNT = 5;
+		private const int MAX_STRING_LENGTH = 50;
 
-		static readonly object[] EmptyObjects = new object[0];
-		static readonly Type[] EmptyTypes = new Type[0];
+		private static readonly object[] EmptyObjects = new object[0];
+		private static readonly Type[] EmptyTypes = new Type[0];
 
 		/// <summary>
 		/// Format the value for presentation.
@@ -68,7 +68,7 @@ namespace Xunit.Sdk
 #endif
 
 #if NEW_REFLECTION
-						var toString = type.GetTypeInfo().GetDeclaredMethod("ToString");
+			var toString = type.GetTypeInfo().GetDeclaredMethod("ToString");
 #else
 			var toString = type.GetMethod("ToString", EmptyTypes);
 #endif

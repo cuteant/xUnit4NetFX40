@@ -12,7 +12,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class XunitTestCaseRunner : TestCaseRunner<IXunitTestCase>
 	{
-		readonly List<BeforeAfterTestAttribute> beforeAfterAttributes;
+		private readonly List<BeforeAfterTestAttribute> beforeAfterAttributes;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
@@ -64,6 +64,7 @@ namespace Xunit.Sdk
 		/// Gets the list of <see cref="BeforeAfterTestAttribute"/>s that will be used for this test case.
 		/// </summary>
 #if NET_4_0_ABOVE
+
 		public IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
 #else
 		public IList<BeforeAfterTestAttribute> BeforeAfterAttributes

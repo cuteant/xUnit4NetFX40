@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -77,7 +75,9 @@ namespace Xunit.Sdk
 		protected IEnumerable<TTestCase> TestCases { get; set; }
 
 		/// <inheritdoc/>
-		public virtual void Dispose() { }
+		public virtual void Dispose()
+		{
+		}
 
 		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").
@@ -94,7 +94,7 @@ namespace Xunit.Sdk
 			return String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
 		}
 
-		static string GetVersion()
+		private static string GetVersion()
 		{
 #if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
 						var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();

@@ -13,11 +13,11 @@ namespace Xunit.Sdk
 	public class AllException : XunitException
 	{
 #if NET_4_0_ABOVE
-		readonly IReadOnlyList<Tuple<int, Exception>> errors;
+		private readonly IReadOnlyList<Tuple<int, Exception>> errors;
 #else
-		readonly IList<Tuple<int, Exception>> errors;
+		private readonly IList<Tuple<int, Exception>> errors;
 #endif
-		readonly int totalItems;
+		private readonly int totalItems;
 
 		/// <summary>
 		/// Creates a new instance of the <see cref="AllException"/> class.
@@ -35,9 +35,13 @@ namespace Xunit.Sdk
 		/// The errors that occurred during execution of the test.
 		/// </summary>
 #if NET_4_0_ABOVE
+
 		public IReadOnlyList<Exception> Failures { get { return errors.Select(t => t.Item2).ToList(); } }
+
 #else
+
 		public IList<Exception> Failures { get { return errors.Select(t => t.Item2).ToList(); } }
+
 #endif
 
 		/// <inheritdoc/>

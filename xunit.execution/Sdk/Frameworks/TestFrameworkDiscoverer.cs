@@ -13,7 +13,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public abstract class TestFrameworkDiscoverer : LongLivedMarshalByRefObject, ITestFrameworkDiscoverer
 	{
-		readonly Lazy<string> targetFramework;
+		private readonly Lazy<string> targetFramework;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
@@ -205,10 +205,10 @@ namespace Xunit.Sdk
 			return SerializationHelper.Serialize(testCase);
 		}
 
-		class PreserveWorkingFolder : IDisposable
+		private class PreserveWorkingFolder : IDisposable
 		{
 #if !WINDOWS_PHONE_APP &&!WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
-			readonly string originalWorkingFolder;
+			private readonly string originalWorkingFolder;
 #endif
 
 			public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)

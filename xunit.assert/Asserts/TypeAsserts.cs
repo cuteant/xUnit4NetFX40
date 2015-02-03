@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 using Xunit.Sdk;
 
 namespace Xunit

@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+
 #if NET_4_0_ABOVE
+
 using System.Runtime.CompilerServices;
+
 #endif
 
 namespace Xunit
 {
 	internal static class ReflectExtensions
 	{
-
 		internal const BindingFlags DefaultLookup = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
 		internal const BindingFlags DeclaredOnlyLookup = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
 
@@ -20,6 +21,7 @@ namespace Xunit
 		/// <param name="c"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static Boolean IsAssignableFromEx(this Type type, Type c)
@@ -37,6 +39,7 @@ namespace Xunit
 		/// <param name="isDeclaredOnly">表示仅搜索在 Type 上声明的方法，而不搜索简单继承的方法</param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static PropertyInfo GetPropertyEx(this Type type, String name, Boolean isDeclaredOnly = true)
@@ -72,6 +75,7 @@ namespace Xunit
 		/// <param name="isDeclaredOnly">表示仅搜索在 Type 上声明的方法，而不搜索简单继承的方法</param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static FieldInfo GetFieldEx(this Type type, String name, Boolean isDeclaredOnly = true)
@@ -107,6 +111,7 @@ namespace Xunit
 		/// <param name="isDeclaredOnly">表示仅搜索在 Type 上声明的方法，而不搜索简单继承的方法</param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static EventInfo GetEventEx(this Type type, String name, Boolean isDeclaredOnly = true)
@@ -140,6 +145,7 @@ namespace Xunit
 		/// <param name="type"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<FieldInfo> GetRuntimeFieldsEx(this Type type)
@@ -155,6 +161,7 @@ namespace Xunit
 		/// <param name="type"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<PropertyInfo> GetRuntimePropertiesEx(this Type type)
@@ -170,6 +177,7 @@ namespace Xunit
 		/// <param name="type"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<MethodInfo> GetRuntimeMethodsEx(this Type type)
@@ -186,6 +194,7 @@ namespace Xunit
 		/// <param name="isDeclaredOnly"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<ConstructorInfo> GetConstructorsEx(this Type type, Boolean isDeclaredOnly = true)
@@ -209,6 +218,7 @@ namespace Xunit
 		/// <param name="isDeclaredOnly"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<MethodInfo> GetMethodsEx(this Type type, Boolean isDeclaredOnly = true)

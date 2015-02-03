@@ -13,11 +13,11 @@ namespace Xunit.Sdk
 	public class XunitTestInvoker : TestInvoker<IXunitTestCase>
 	{
 #if NET_4_0_ABOVE
-		readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		private readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
 #else
-		readonly IList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		private readonly IList<BeforeAfterTestAttribute> beforeAfterAttributes;
 #endif
-		readonly Stack<BeforeAfterTestAttribute> beforeAfterAttributesRun = new Stack<BeforeAfterTestAttribute>();
+		private readonly Stack<BeforeAfterTestAttribute> beforeAfterAttributesRun = new Stack<BeforeAfterTestAttribute>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestInvoker"/> class.
@@ -53,8 +53,10 @@ namespace Xunit.Sdk
 		/// Gets the list of <see cref="BeforeAfterTestAttribute"/>s for this test invocation.
 		/// </summary>
 #if NET_4_0_ABOVE
+
 		protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
 #else
+
 		protected IList<BeforeAfterTestAttribute> BeforeAfterAttributes
 #endif
 		{

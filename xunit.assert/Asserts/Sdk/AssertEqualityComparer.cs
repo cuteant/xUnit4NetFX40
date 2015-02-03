@@ -2,7 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
+#if NET_4_0_ABOVE
+
 using System.Reflection;
+
+#endif
 
 namespace Xunit.Sdk
 {
@@ -12,15 +17,15 @@ namespace Xunit.Sdk
 	/// <typeparam name="T">The type that is being compared.</typeparam>
 	internal class AssertEqualityComparer<T> : IEqualityComparer<T>
 	{
-		static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
+		private static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
 #if NET_4_0_ABOVE
-		static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
+		private static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
 #else
-		static readonly Type NullableTypeInfo = typeof(Nullable<>);
+		private static readonly Type NullableTypeInfo = typeof(Nullable<>);
 #endif
 
-		readonly Func<IEqualityComparer> innerComparerFactory;
-		readonly bool skipTypeCheck;
+		private readonly Func<IEqualityComparer> innerComparerFactory;
+		private readonly bool skipTypeCheck;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AssertEqualityComparer{T}" /> class.

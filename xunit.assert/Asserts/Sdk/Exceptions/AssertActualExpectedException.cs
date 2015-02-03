@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -85,7 +86,7 @@ namespace Xunit.Sdk
 		}
 
 #if NET_4_0_ABOVE
-		static string ConvertToSimpleTypeName(TypeInfo typeInfo)
+		private static string ConvertToSimpleTypeName(TypeInfo typeInfo)
 #else
 		static string ConvertToSimpleTypeName(Type typeInfo)
 #endif
@@ -104,7 +105,7 @@ namespace Xunit.Sdk
 			return String.Format("{0}<{1}>", typeInfo.Name.Substring(0, backTickIdx), String.Join(", ", simpleNames));
 		}
 
-		static string ConvertToString(object value)
+		private static string ConvertToString(object value)
 		{
 			var stringValue = value as string;
 			if (stringValue != null)

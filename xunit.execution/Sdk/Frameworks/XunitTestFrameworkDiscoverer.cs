@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -22,7 +24,7 @@ namespace Xunit.Sdk
 		public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
 #endif
 
-		readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
+		private readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.

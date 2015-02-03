@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -75,7 +74,7 @@ namespace Xunit.Sdk
 #else
 			return Assembly.GetCustomAttributesData()
 #endif
-										 .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.DeclaringType))
+.Where(attr => attributeType.IsAssignableFrom(attr.Constructor.DeclaringType))
 										 .OrderBy(attr => attr.Constructor.DeclaringType.Name)
 										 .Select(Reflector.Wrap)
 										 .Cast<IAttributeInfo>()

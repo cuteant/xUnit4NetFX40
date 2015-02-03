@@ -3,7 +3,7 @@ using System.Reflection;
 
 internal static class ExceptionExtensions
 {
-	const string RETHROW_MARKER = "$$RethrowMarker$$";
+	private const string RETHROW_MARKER = "$$RethrowMarker$$";
 
 	/// <summary>
 	/// Rethrows an exception object without losing the existing stack trace information

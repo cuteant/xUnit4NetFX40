@@ -12,8 +12,8 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class ReflectionMethodInfo : LongLivedMarshalByRefObject, IReflectionMethodInfo
 	{
-		static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
-		static readonly IEqualityComparer<IEnumerable<Type>> TypeListComparer = new AssertEqualityComparer<IEnumerable<Type>>(innerComparer: TypeComparer);
+		private static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
+		private static readonly IEqualityComparer<IEnumerable<Type>> TypeListComparer = new AssertEqualityComparer<IEnumerable<Type>>(innerComparer: TypeComparer);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionMethodInfo"/> class.
@@ -80,14 +80,14 @@ namespace Xunit.Sdk
 			return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).ToList();
 		}
 
-		static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
+		private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
 		{
 			var attributeType = Reflector.GetType(assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 		}
 
-		static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
+		private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
 		{
 #if NET_4_0_ABOVE
 			// TODO: Does this need to be CustomAttributeData?
@@ -126,7 +126,7 @@ namespace Xunit.Sdk
 			return MethodInfo.GetGenericArguments().Select(Reflector.Wrap).ToArray();
 		}
 
-		static MethodInfo GetParent(MethodInfo method)
+		private static MethodInfo GetParent(MethodInfo method)
 		{
 			if (!method.IsVirtual)
 				return null;
@@ -170,7 +170,7 @@ namespace Xunit.Sdk
 											 .ToList();
 		}
 
-		class GenericTypeComparer : IEqualityComparer
+		private class GenericTypeComparer : IEqualityComparer
 		{
 			bool IEqualityComparer.Equals(object x, object y)
 			{

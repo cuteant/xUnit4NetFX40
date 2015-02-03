@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -11,12 +13,12 @@ namespace Xunit.Sdk
 	/// </summary>
 	public static class ExtensibilityPointFactory
 	{
-		static readonly DisposalTracker disposalTracker = new DisposalTracker();
-		static readonly ConcurrentDictionary<Type, object> instances = new ConcurrentDictionary<Type, object>();
+		private static readonly DisposalTracker disposalTracker = new DisposalTracker();
+		private static readonly ConcurrentDictionary<Type, object> instances = new ConcurrentDictionary<Type, object>();
 #if NET_4_0_ABOVE
-		static readonly TypeInfo testAssemblyTypeInfo = typeof(ITestAssembly).GetTypeInfo();
+		private static readonly TypeInfo testAssemblyTypeInfo = typeof(ITestAssembly).GetTypeInfo();
 #else
-		static readonly Type testAssemblyTypeInfo = typeof(ITestAssembly);
+		private static readonly Type testAssemblyTypeInfo = typeof(ITestAssembly);
 #endif
 
 		private static object CreateInstance(Type type, object[] ctorArgs)
@@ -193,7 +195,7 @@ namespace Xunit.Sdk
 			return GetXunitTestCollectionFactory(GetTestCollectionFactoryType(collectionBehaviorAttribute), testAssembly);
 		}
 
-		static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehaviorAttribute)
+		private static Type GetTestCollectionFactoryType(IAttributeInfo collectionBehaviorAttribute)
 		{
 			if (collectionBehaviorAttribute == null)
 				return typeof(CollectionPerClassTestCollectionFactory);

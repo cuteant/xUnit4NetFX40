@@ -13,7 +13,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
 	{
-		readonly IDictionary<Type, object> collectionFixtureMappings;
+		private readonly IDictionary<Type, object> collectionFixtureMappings;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
@@ -46,7 +46,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
 
-		void CreateFixture(Type fixtureGenericInterfaceType)
+		private void CreateFixture(Type fixtureGenericInterfaceType)
 		{
 #if NET_4_0_ABOVE
 			var fixtureType = fixtureGenericInterfaceType.GetTypeInfo().GenericTypeArguments.Single();
@@ -61,8 +61,10 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 #if NET_4_0_ABOVE
+
 		protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
 #else
+
 		protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IList<Tuple<int, ParameterInfo>> unusedArguments)
 #endif
 		{

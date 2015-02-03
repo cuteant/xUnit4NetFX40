@@ -83,7 +83,7 @@ public static class ReflectionAbstractionExtensions
 		}
 	}
 
-	static MethodInfo GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
+	private static MethodInfo GetMethodInfoFromIMethodInfo(this Type type, IMethodInfo methodInfo)
 	{
 		// The old logic only flattened hierarchy for static methods
 		var methods = from method in methodInfo.IsStatic ? type.GetRuntimeMethodsEx() : type.GetMethodsEx()

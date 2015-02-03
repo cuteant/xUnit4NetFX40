@@ -11,7 +11,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class ReflectionAttributeInfo : LongLivedMarshalByRefObject, IReflectionAttributeInfo
 	{
-		static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
+		private static readonly AttributeUsageAttribute DefaultAttributeUsageAttribute = new AttributeUsageAttribute(AttributeTargets.All);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionAttributeInfo"/> class.
@@ -29,7 +29,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public CustomAttributeData AttributeData { get; private set; }
 
-		static IEnumerable<object> Convert(IEnumerable<CustomAttributeTypedArgument> arguments)
+		private static IEnumerable<object> Convert(IEnumerable<CustomAttributeTypedArgument> arguments)
 		{
 			foreach (var argument in arguments)
 			{
@@ -127,7 +127,7 @@ namespace Xunit.Sdk
 			return (TValue)propInfo.GetValue(Attribute, new object[0]);
 		}
 
-		Attribute Instantiate(CustomAttributeData attributeData)
+		private Attribute Instantiate(CustomAttributeData attributeData)
 		{
 			var ctorArgs = GetConstructorArguments().ToArray();
 			var ctorArgTypes = attributeData.ConstructorArguments.Select(ci => ci.ArgumentType).ToArray();

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -11,9 +13,9 @@ namespace Xunit.Sdk
 	internal class AssertComparer<T> : IComparer<T> where T : IComparable
 	{
 #if NET_4_0_ABOVE
-		static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
+		private static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
 #else
-		static readonly Type NullableTypeInfo = typeof(Nullable<>);
+		private static readonly Type NullableTypeInfo = typeof(Nullable<>);
 #endif
 
 		/// <inheritdoc/>

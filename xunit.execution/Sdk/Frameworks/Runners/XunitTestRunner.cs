@@ -14,9 +14,9 @@ namespace Xunit.Sdk
 	public class XunitTestRunner : TestRunner<IXunitTestCase>
 	{
 #if NET_4_0_ABOVE
-		readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		private readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
 #else
-		readonly IList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		private readonly IList<BeforeAfterTestAttribute> beforeAfterAttributes;
 #endif
 
 		/// <summary>
@@ -55,8 +55,10 @@ namespace Xunit.Sdk
 		/// Gets the list of <see cref="BeforeAfterTestAttribute"/>s for this test.
 		/// </summary>
 #if NET_4_0_ABOVE
+
 		protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
 #else
+
 		protected IList<BeforeAfterTestAttribute> BeforeAfterAttributes
 #endif
 		{

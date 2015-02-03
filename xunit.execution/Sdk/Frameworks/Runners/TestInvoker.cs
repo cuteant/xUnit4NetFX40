@@ -236,7 +236,7 @@ namespace Xunit.Sdk
 		}
 
 		[SecuritySafeCritical]
-		static void SetSynchronizationContext(SynchronizationContext context)
+		private static void SetSynchronizationContext(SynchronizationContext context)
 		{
 			SynchronizationContext.SetSynchronizationContext(context);
 		}

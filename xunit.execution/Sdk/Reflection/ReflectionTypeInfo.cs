@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk

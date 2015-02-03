@@ -125,8 +125,10 @@ namespace Xunit.Sdk
 		/// Gets the message to be used when the constructor is missing arguments.
 		/// </summary>
 #if NET_4_0_ABOVE
+
 		protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
 #else
+
 		protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IList<Tuple<int, ParameterInfo>> unusedArguments)
 #endif
 		{

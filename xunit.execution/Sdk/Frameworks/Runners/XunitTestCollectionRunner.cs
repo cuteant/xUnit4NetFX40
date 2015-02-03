@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if NET_4_0_ABOVE
 using System.Reflection;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -38,7 +40,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		protected Dictionary<Type, object> CollectionFixtureMappings { get; set; }
 
-		void CreateFixture(Type fixtureGenericInterfaceType)
+		private void CreateFixture(Type fixtureGenericInterfaceType)
 		{
 #if NET_4_0_ABOVE
 			var fixtureType = fixtureGenericInterfaceType.GenericTypeArguments.Single();

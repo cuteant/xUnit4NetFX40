@@ -13,12 +13,12 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class XunitTestAssemblyRunner : TestAssemblyRunner<IXunitTestCase>
 	{
-		IAttributeInfo collectionBehaviorAttribute;
-		bool disableParallelization;
-		bool initialized;
-		int maxParallelThreads;
-		SynchronizationContext originalSyncContext;
-		MaxConcurrencySyncContext syncContext;
+		private IAttributeInfo collectionBehaviorAttribute;
+		private bool disableParallelization;
+		private bool initialized;
+		private int maxParallelThreads;
+		private SynchronizationContext originalSyncContext;
+		private MaxConcurrencySyncContext syncContext;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -179,7 +179,7 @@ namespace Xunit.Sdk
 		}
 
 		[SecuritySafeCritical]
-		static void SetSynchronizationContext(SynchronizationContext context)
+		private static void SetSynchronizationContext(SynchronizationContext context)
 		{
 			SynchronizationContext.SetSynchronizationContext(context);
 		}
