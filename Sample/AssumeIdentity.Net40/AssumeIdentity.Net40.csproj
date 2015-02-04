@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1035\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\..\packages\xunit.runner.visualstudio.2.0.0-rc1-build1035\build\net20\xunit.runner.visualstudio.props')" />
-  <Import Project="..\..\Deploy\net40\xunit.core.props" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -93,6 +92,10 @@
     <ProjectReference Include="..\..\xunit.core.net40\xunit.core.Net40.csproj">
       <Project>{7503f489-c722-4527-a623-08b3fc5c72cf}</Project>
       <Name>xunit.core.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\xunit.execution.desktop.net40\xunit.execution.desktop.Net40.csproj">
+      <Project>{66643cf0-8d60-41e9-837a-29695949be86}</Project>
+      <Name>xunit.execution.desktop.Net40</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
