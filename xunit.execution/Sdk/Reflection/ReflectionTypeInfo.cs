@@ -25,11 +25,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IAssemblyInfo Assembly
 		{
-#if NET_4_0_ABOVE
-			get { return Reflector.Wrap(Type.GetTypeInfo().Assembly); }
-#else
-			get { return Reflector.Wrap(Type.Assembly); }
-#endif
+			get { return Reflector.Wrap(Type.GetAssembly()); }
 		}
 
 		/// <inheritdoc/>

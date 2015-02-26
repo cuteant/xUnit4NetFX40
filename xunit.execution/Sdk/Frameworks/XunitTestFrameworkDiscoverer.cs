@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-#if NET_4_0_ABOVE
 using System.Reflection;
-#endif
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -18,34 +16,22 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the display name of the xUnit.net v2 test framework.
 		/// </summary>
-#if NET_4_0_ABOVE
-		public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetTypeInfo().Assembly.GetName().Version);
-#else
-		public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).Assembly.GetName().Version);
-#endif
+		public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetAssembly().GetName().Version);
 
-		private readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
+		readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
 		/// </summary>
 		/// <param name="assemblyInfo">The test assembly.</param>
 		/// <param name="sourceProvider">The source information provider.</param>
-		public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo, ISourceInformationProvider sourceProvider)
-			: this(assemblyInfo, sourceProvider, null, null) { }
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="XunitTestFrameworkDiscoverer"/> class.
-		/// </summary>
-		/// <param name="assemblyInfo">The test assembly.</param>
-		/// <param name="sourceProvider">The source information provider.</param>
+		/// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
 		/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
-		/// <param name="messageAggregator">The message aggregator to receive environmental warnings from.</param>
 		public XunitTestFrameworkDiscoverer(IAssemblyInfo assemblyInfo,
 																				ISourceInformationProvider sourceProvider,
-																				IXunitTestCollectionFactory collectionFactory,
-																				IMessageAggregator messageAggregator)
-			: base(assemblyInfo, sourceProvider, messageAggregator)
+																				IMessageSink diagnosticMessageSink,
+																				IXunitTestCollectionFactory collectionFactory = null)
+			: base(assemblyInfo, sourceProvider, diagnosticMessageSink)
 		{
 			var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
 			var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
@@ -56,7 +42,7 @@ namespace Xunit.Sdk
 #endif
 			var testAssembly = new TestAssembly(assemblyInfo, config);
 
-			TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly);
+			TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly);
 			TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
 																							 DisplayName,
 																							 TestCollectionFactory.DisplayName,
@@ -93,7 +79,7 @@ namespace Xunit.Sdk
 				return true;
 
 			var args = testCaseDiscovererAttribute.GetConstructorArguments().Cast<string>().ToList();
-			var discovererType = Reflector.GetType(args[1], args[0]);
+			var discovererType = SerializationHelper.GetType(args[1], args[0]);
 			if (discovererType == null)
 				return true;
 
@@ -135,12 +121,12 @@ namespace Xunit.Sdk
 			{
 				try
 				{
-					result = ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(discovererType);
+					result = ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(DiagnosticMessageSink, discovererType);
 				}
 				catch (Exception ex)
 				{
 					result = null;
-					Aggregator.Add(new EnvironmentalWarning { Message = String.Format("Discoverer type '{0}' could not be created or does not implement IXunitTestCaseDiscoverer: {1}", discovererType.FullName, ex) });
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Discoverer type '{0}' could not be created or does not implement IXunitTestCaseDiscoverer: {1}", discovererType.FullName, ex));
 				}
 
 				discovererCache[discovererType] = result;

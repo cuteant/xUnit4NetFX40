@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-
 #if NET_4_0_ABOVE
-
 using System.Runtime.CompilerServices;
-
 #endif
 
 namespace Xunit
@@ -21,7 +18,105 @@ namespace Xunit
 		/// <param name="c"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static Assembly GetAssembly(this Type type)
+		{
+#if NET_4_0_ABOVE
+			return type.GetTypeInfo().Assembly;
+#else
+			return type.Assembly;
+#endif
+		}
 
+		/// <summary>GetDeclaredMethod</summary>
+		/// <param name="type"></param>
+		/// <param name="methodName"></param>
+		/// <returns></returns>
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static MethodInfo GetDeclaredMethod(this Type type, string methodName)
+		{
+#if NEW_REFLECTION
+			return type.GetTypeInfo().GetDeclaredMethod(methodName);
+#else
+			return type.GetMethod(methodName);
+#endif
+		}
+
+		/// <summary>IsEnum</summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static bool IsEnum(this Type type)
+		{
+#if NEW_REFLECTION
+			return type.GetTypeInfo().IsEnum;
+#else
+			return type.IsEnum;
+#endif
+		}
+
+		/// <summary>IsGenericType</summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static bool IsGenericType(this Type type)
+		{
+#if NEW_REFLECTION
+			return type.GetTypeInfo().IsGenericType;
+#else
+			return type.IsGenericType;
+#endif
+		}
+
+		public static bool IsNullableEnum(this Type type)
+		{
+			return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>) && type.GetGenericArguments()[0].IsEnum();
+		}
+
+		public static bool IsValueType(this Type type)
+		{
+#if NEW_REFLECTION
+			return type.GetTypeInfo().IsValueType;
+#else
+			return type.IsValueType;
+#endif
+		}
+
+		public static Type UnwrapNullable(this Type type)
+		{
+			if (!type.IsGenericType()) { return type; }
+			if (type.GetGenericTypeDefinition() != typeof(Nullable<>)) { return type; }
+			return type.GetGenericArguments()[0];
+		}
+
+		/// <summary>确定 Type 的实例是否可以从指定 Type 的实例分配。</summary>
+		/// <param name="type"></param>
+		/// <param name="c"></param>
+		/// <returns></returns>
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static Type[] GetGenericArgumentsEx(this Type type)
+		{
+#if NET_4_0_ABOVE
+			return type.GetTypeInfo().GenericTypeArguments;
+#else
+			return type.GetGenericArguments();
+#endif
+		}
+
+		/// <summary>确定 Type 的实例是否可以从指定 Type 的实例分配。</summary>
+		/// <param name="type"></param>
+		/// <param name="c"></param>
+		/// <returns></returns>
+#if NET_4_0_ABOVE
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static Boolean IsAssignableFromEx(this Type type, Type c)
@@ -39,7 +134,6 @@ namespace Xunit
 		/// <param name="isDeclaredOnly">表示仅搜索在 Type 上声明的方法，而不搜索简单继承的方法</param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static PropertyInfo GetPropertyEx(this Type type, String name, Boolean isDeclaredOnly = true)
@@ -75,7 +169,6 @@ namespace Xunit
 		/// <param name="isDeclaredOnly">表示仅搜索在 Type 上声明的方法，而不搜索简单继承的方法</param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static FieldInfo GetFieldEx(this Type type, String name, Boolean isDeclaredOnly = true)
@@ -111,7 +204,6 @@ namespace Xunit
 		/// <param name="isDeclaredOnly">表示仅搜索在 Type 上声明的方法，而不搜索简单继承的方法</param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static EventInfo GetEventEx(this Type type, String name, Boolean isDeclaredOnly = true)
@@ -145,7 +237,6 @@ namespace Xunit
 		/// <param name="type"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<FieldInfo> GetRuntimeFieldsEx(this Type type)
@@ -161,7 +252,6 @@ namespace Xunit
 		/// <param name="type"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<PropertyInfo> GetRuntimePropertiesEx(this Type type)
@@ -177,7 +267,6 @@ namespace Xunit
 		/// <param name="type"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<MethodInfo> GetRuntimeMethodsEx(this Type type)
@@ -194,7 +283,6 @@ namespace Xunit
 		/// <param name="isDeclaredOnly"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<ConstructorInfo> GetConstructorsEx(this Type type, Boolean isDeclaredOnly = true)
@@ -218,7 +306,6 @@ namespace Xunit
 		/// <param name="isDeclaredOnly"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
-
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
 		public static IEnumerable<MethodInfo> GetMethodsEx(this Type type, Boolean isDeclaredOnly = true)

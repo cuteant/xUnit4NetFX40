@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
@@ -23,16 +25,19 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="testAssembly">The assembly that contains the tests to be run.</param>
 		/// <param name="testCases">The test cases to be run.</param>
-		/// <param name="messageSink">The message sink to report run status to.</param>
+		/// <param name="diagnosticMessageSink">The message sink to report diagnostic messages to.</param>
+		/// <param name="executionMessageSink">The message sink to report run status to.</param>
 		/// <param name="executionOptions">The user's requested execution options.</param>
 		public TestAssemblyRunner(ITestAssembly testAssembly,
 															IEnumerable<TTestCase> testCases,
-															IMessageSink messageSink,
+															IMessageSink diagnosticMessageSink,
+															IMessageSink executionMessageSink,
 															ITestFrameworkExecutionOptions executionOptions)
 		{
 			TestAssembly = testAssembly;
 			TestCases = testCases;
-			MessageSink = messageSink;
+			DiagnosticMessageSink = diagnosticMessageSink;
+			ExecutionMessageSink = executionMessageSink;
 			ExecutionOptions = executionOptions;
 			TestCaseOrderer = new DefaultTestCaseOrderer();
 			TestCollectionOrderer = new DefaultTestCollectionOrderer();
@@ -50,9 +55,14 @@ namespace Xunit.Sdk
 		protected ITestFrameworkExecutionOptions ExecutionOptions { get; set; }
 
 		/// <summary>
+		/// Gets or sets the message sink to report diagnostic messages to.
+		/// </summary>
+		protected IMessageSink DiagnosticMessageSink { get; set; }
+
+		/// <summary>
 		/// Gets or sets the message sink to report run status to.
 		/// </summary>
-		protected IMessageSink MessageSink { get; set; }
+		protected IMessageSink ExecutionMessageSink { get; set; }
 
 		/// <summary>
 		/// Gets or sets the assembly that contains the tests to be run.
@@ -75,9 +85,7 @@ namespace Xunit.Sdk
 		protected IEnumerable<TTestCase> TestCases { get; set; }
 
 		/// <inheritdoc/>
-		public virtual void Dispose()
-		{
-		}
+		public virtual void Dispose() { }
 
 		/// <summary>
 		/// Override this to provide the display name for the test framework (f.e., "xUnit.net 2.0").
@@ -94,11 +102,11 @@ namespace Xunit.Sdk
 			return String.Format("{0}-bit .NET {1}", IntPtr.Size * 8, GetVersion());
 		}
 
-		private static string GetVersion()
+		static string GetVersion()
 		{
 #if WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
-						var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
-						return attr == null ? "(unknown version)" : attr.FrameworkDisplayName;
+			var attr = typeof(object).GetTypeInfo().Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+			return attr == null ? "(unknown version)" : attr.FrameworkDisplayName;
 #else
 			return Environment.Version.ToString();
 #endif
@@ -140,9 +148,9 @@ namespace Xunit.Sdk
 		protected virtual IMessageBus CreateMessageBus()
 		{
 			if (ExecutionOptions.SynchronousMessageReportingOrDefault())
-				return new SynchronousMessageBus(MessageSink);
+				return new SynchronousMessageBus(ExecutionMessageSink);
 
-			return new MessageBus(MessageSink);
+			return new MessageBus(ExecutionMessageSink);
 		}
 
 		/// <summary>

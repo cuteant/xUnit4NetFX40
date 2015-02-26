@@ -96,13 +96,8 @@ namespace Xunit
 
 				if (expectedTypeName == actualTypeName)
 				{
-#if NET_4_0_ABOVE
-					expectedTypeName += String.Format(" ({0})", expectedType.GetTypeInfo().Assembly.GetName().FullName);
-					actualTypeName += String.Format(" ({0})", actualType.GetTypeInfo().Assembly.GetName().FullName);
-#else
-					expectedTypeName += String.Format(" ({0})", expectedType.Assembly.GetName().FullName);
-					actualTypeName += String.Format(" ({0})", actualType.Assembly.GetName().FullName);
-#endif
+					expectedTypeName += String.Format(" ({0})", expectedType.GetAssembly().GetName().FullName);
+					actualTypeName += String.Format(" ({0})", actualType.GetAssembly().GetName().FullName);
 				}
 
 				throw new IsTypeException(expectedTypeName, actualTypeName);

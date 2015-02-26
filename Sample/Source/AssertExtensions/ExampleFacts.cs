@@ -36,7 +36,7 @@ namespace AssertExtensions45
 
 				Exception exception = Record.Exception(() => val.ShouldBeTrue("should be true"));
 
-				Assert.Equal("should be true", exception.Message.Split(Environment.NewLine.ToArray())[0]);
+				Assert.StartsWith("should be true", exception.Message);
 			}
 
 			[Fact]
@@ -46,7 +46,7 @@ namespace AssertExtensions45
 
 				Exception exception = Record.Exception(() => val.ShouldBeFalse("should be false"));
 
-				Assert.Equal("should be false", exception.Message.Split(Environment.NewLine.ToArray())[0]);
+				Assert.StartsWith("should be false", exception.Message);
 			}
 		}
 	}

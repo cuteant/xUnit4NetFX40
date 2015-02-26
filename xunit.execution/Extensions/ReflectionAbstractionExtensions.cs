@@ -182,6 +182,6 @@ public static class ReflectionAbstractionExtensions
 		if (reflectionTypeInfo != null)
 			return reflectionTypeInfo.Type;
 
-		return Reflector.GetType(typeInfo.Assembly.Name, typeInfo.Name);
+		return SerializationHelper.GetType(typeInfo.Assembly.Name, typeInfo.Name);
 	}
 }
