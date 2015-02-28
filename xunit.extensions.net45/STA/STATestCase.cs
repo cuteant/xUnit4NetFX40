@@ -5,13 +5,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-#if NET40
-namespace STAExamples40
-#else
-namespace STAExamples45
-#endif
+namespace Xunit.Sdk
 {
 	/// <summary>
 	/// Wraps test cases for FactAttribute and TheoryAttribute so the test case runs in the STA Thread

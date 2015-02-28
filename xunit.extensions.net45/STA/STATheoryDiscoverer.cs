@@ -1,13 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
-#if NET40
-namespace STAExamples40
-#else
-namespace STAExamples45
-#endif
+namespace Xunit.Sdk
 {
 	public class STATheoryDiscoverer : IXunitTestCaseDiscoverer
 	{

@@ -69,6 +69,10 @@
       <Project>{552d043c-9701-44ac-82a5-51f46544af22}</Project>
       <Name>xunit.execution.desktop.Net45</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\xunit.extensions.net45\xunit.extensions.Net45.csproj">
+      <Project>{8f194db4-f548-4950-a844-04a9d9085446}</Project>
+      <Name>xunit.extensions.Net45</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
