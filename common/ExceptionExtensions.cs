@@ -3,7 +3,7 @@ using System.Reflection;
 
 internal static class ExceptionExtensions
 {
-	private const string RETHROW_MARKER = "$$RethrowMarker$$";
+	const string RETHROW_MARKER = "$$RethrowMarker$$";
 
 	/// <summary>
 	/// Rethrows an exception object without losing the existing stack trace information
@@ -16,19 +16,19 @@ internal static class ExceptionExtensions
 	/// </remarks>
 	public static void RethrowWithNoStackTraceLoss(this Exception ex)
 	{
-#if XUNIT_CORE_DLL || WINDOWS_PHONE_APP || WINDOWS_PHONE || ASPNETCORE50
+#if XUNIT_CORE_DLL || WINDOWS_PHONE_APP || WINDOWS_PHONE
 #if NET_4_0_ABOVE
 		System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
 #else
 		throw ex;
 #endif
 #else
-				FieldInfo remoteStackTraceString =
-						typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic) ??
-						typeof(Exception).GetField("remote_stack_trace", BindingFlags.Instance | BindingFlags.NonPublic);
+		FieldInfo remoteStackTraceString =
+				typeof(Exception).GetField("_remoteStackTraceString", BindingFlags.Instance | BindingFlags.NonPublic) ??
+				typeof(Exception).GetField("remote_stack_trace", BindingFlags.Instance | BindingFlags.NonPublic);
 
-				remoteStackTraceString.SetValue(ex, ex.StackTrace + RETHROW_MARKER);
-				throw ex;
+		remoteStackTraceString.SetValue(ex, ex.StackTrace + RETHROW_MARKER);
+		throw ex;
 #endif
 	}
 

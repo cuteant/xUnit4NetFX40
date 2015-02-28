@@ -45,7 +45,7 @@ namespace Xunit.Sdk
 			if (value is DateTime || value is DateTimeOffset)
 				return String.Format("{0:o}", value);
 
-			string stringParameter = value as string;
+			var stringParameter = value as string;
 			if (stringParameter != null)
 			{
 				if (stringParameter.Length > MAX_STRING_LENGTH)
@@ -59,16 +59,11 @@ namespace Xunit.Sdk
 				return FormatEnumerable(enumerable.Cast<object>(), depth);
 
 			var type = value.GetType();
-#if NET_4_0_ABOVE
-			if (type.GetTypeInfo().IsValueType)
+			if (type.IsValueType())
 				return Convert.ToString(value, CultureInfo.CurrentCulture);
-#else
-			if (type.IsValueType)
-				return Convert.ToString(value, CultureInfo.CurrentCulture);
-#endif
 
 #if NEW_REFLECTION
-			var toString = type.GetTypeInfo().GetDeclaredMethod("ToString");
+			var toString = type.GetRuntimeMethod("ToString", EmptyTypes);
 #else
 			var toString = type.GetMethod("ToString", EmptyTypes);
 #endif

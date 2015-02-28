@@ -29,22 +29,6 @@ namespace Xunit
 #endif
 		}
 
-		/// <summary>GetDeclaredMethod</summary>
-		/// <param name="type"></param>
-		/// <param name="methodName"></param>
-		/// <returns></returns>
-#if NET_4_0_ABOVE
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
-		public static MethodInfo GetDeclaredMethod(this Type type, string methodName)
-		{
-#if NEW_REFLECTION
-			return type.GetTypeInfo().GetDeclaredMethod(methodName);
-#else
-			return type.GetMethod(methodName);
-#endif
-		}
-
 		/// <summary>IsEnum</summary>
 		/// <param name="type"></param>
 		/// <returns></returns>

@@ -36,7 +36,7 @@
     <Reference Include="System.Core" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\xunit.abstractions.2.0.0-rc3-build2888\lib\net35\xunit.abstractions.dll</HintPath>
+      <HintPath>..\packages\xunit.abstractions.2.0.0-rc3-build2896\lib\net35\xunit.abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -48,9 +48,6 @@
     <Compile Include="STA\STATheoryDiscoverer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\xunit.core.net45\xunit.core.Net45.csproj">
       <Project>{ed2e0f85-68e6-483f-a701-6ca77e2d6422}</Project>
       <Name>xunit.core.Net45</Name>
@@ -59,6 +56,9 @@
       <Project>{552d043c-9701-44ac-82a5-51f46544af22}</Project>
       <Name>xunit.execution.desktop.Net45</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
