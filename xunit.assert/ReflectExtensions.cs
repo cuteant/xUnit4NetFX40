@@ -29,6 +29,18 @@ namespace Xunit
 #endif
 		}
 
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static Attribute[] GetCustomAttributes(this Assembly assembly)
+		{
+#if NEW_REFLECTION
+			return assembly.GetCustomAttributes<Attribute>().ToArray();
+#else
+			return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
+#endif
+		}
+
 		/// <summary>IsEnum</summary>
 		/// <param name="type"></param>
 		/// <returns></returns>
@@ -42,6 +54,25 @@ namespace Xunit
 #else
 			return type.IsEnum;
 #endif
+		}
+
+		public static Boolean IsFromLocalAssembly(this Type type)
+		{
+			var assemblyName = type.GetAssembly().GetName().Name;
+
+			try
+			{
+#if NEW_REFLECTION
+				Assembly.Load(new AssemblyName { Name = assemblyName });
+#else
+				Assembly.Load(assemblyName);
+#endif
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
 		}
 
 		/// <summary>IsGenericType</summary>
