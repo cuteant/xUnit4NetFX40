@@ -1,22 +1,15 @@
-xUnit 官方网址：http://xunit.github.io/
+### xUnit v2 for .net4.5 & .net4.0
 
 由于xUnit v2 官方只支持.net4.5，所以修改源码使xUnit V2支持.net4.0的项目
 
-首先设置NuGet, 加入源：
+### xUnit
 
-xUnit.net Nightly Builds（http://www.myget.org/F/xunit）
-xUnit Dev Packages （http://www.myget.org/F/b4ff5f68eccf4f6bbfed74f055f88d8f/）
+For project documentation, please visit the [xUnit.net project home](http://xunit.github.io/).
 
-已获取最新的xUnit安装包和开发包
+Latest builds:
 
-项目文件配置参考Sample目录下项目
-
-项目所用组件：
-
-Microsoft.Bcl.1.1.9
-Microsoft.Bcl.Async.1.0.168
-Microsoft.Bcl.Build.1.0.21
-xunit.abstractions.2.0.0-rc1-build2839
-
-使用NuGet获取最新版
-
+Channel  | Core Framework | ASP.NET Runner | Visual Studio Runner
+-------- | :------------: | :------------: | :------------------:
+TeamCity<br>([home](http://teamcity.tier3.com)) | ![#](https://img.shields.io/teamcity/http/teamcity.tier3.com/s/xunit_Core.svg) | ![#](https://img.shields.io/teamcity/http/teamcity.tier3.com/s/xunit_AspNet.svg) | ![#](https://img.shields.io/teamcity/http/teamcity.tier3.com/s/xunit_VisualStudio.svg)
+NuGet<br>([feed](https://nuget.org/api/v2/)) | ![#](https://img.shields.io/nuget/v/xunit.svg?style=flat)<br>![#](https://img.shields.io/nuget/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/nuget/vpre/xunit.runner.aspnet.svg?style=flat) | ![#](https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?style=flat)
+MyGet<br>([feed](https://www.myget.org/F/xunit/)) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.runner.aspnet.svg?style=flat) | ![#](https://img.shields.io/myget/xunit/vpre/xunit.runner.visualstudio.svg?style=flat)
