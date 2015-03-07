@@ -73,8 +73,20 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\xunit.extensions.net45\Ordering\AlphabeticalOrderer.cs">
+      <Link>Ordering\AlphabeticalOrderer.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Ordering\PriorityOrderer.cs">
+      <Link>Ordering\PriorityOrderer.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Ordering\TestPriorityAttribute.cs">
+      <Link>Ordering\TestPriorityAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.extensions.net45\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Security\AssumeIdentityAttribute.cs">
+      <Link>Security\AssumeIdentityAttribute.cs</Link>
     </Compile>
     <Compile Include="..\xunit.extensions.net45\STA\STAFactAttribute.cs">
       <Link>STA\STAFactAttribute.cs</Link>

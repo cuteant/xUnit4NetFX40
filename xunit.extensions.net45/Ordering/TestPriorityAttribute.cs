@@ -1,10 +1,6 @@
 ﻿using System;
 
-#if NET40
-namespace TestOrderExamples40
-#else
-namespace TestOrderExamples45
-#endif
+namespace Xunit
 {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class TestPriorityAttribute : Attribute

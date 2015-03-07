@@ -2,13 +2,11 @@
 
 #if NET40
 namespace TestOrderExamples40
-{
-	[TestCaseOrderer("TestOrderExamples40.PriorityOrderer", "TestOrderExamples")]
 #else
 namespace TestOrderExamples45
-{
-	[TestCaseOrderer("TestOrderExamples45.PriorityOrderer", "TestOrderExamples")]
 #endif
+{
+	[TestCaseOrderer("Xunit.PriorityOrderer", "xunit.extensions")]
 	public class PriorityOrderExample
 	{
 		public static bool Test1Called;

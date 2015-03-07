@@ -46,7 +46,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ordering\AlphabeticalOrderer.cs" />
+    <Compile Include="Ordering\PriorityOrderer.cs" />
+    <Compile Include="Ordering\TestPriorityAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\AssumeIdentityAttribute.cs" />
     <Compile Include="STA\STAFactAttribute.cs" />
     <Compile Include="STA\STAFactDiscoverer.cs" />
     <Compile Include="STA\STATestCase.cs" />

@@ -5,11 +5,7 @@ using System.Security.Principal;
 using System.Threading;
 using Xunit.Sdk;
 
-#if NET40
-namespace AssumeIdentity40
-#else
-namespace AssumeIdentity45
-#endif
+namespace Xunit
 {
 	/// <summary>
 	/// Apply this attribute to your test method to replace the 

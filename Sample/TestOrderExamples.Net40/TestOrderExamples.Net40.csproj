@@ -97,6 +97,10 @@
       <Project>{66643cf0-8d60-41e9-837a-29695949be86}</Project>
       <Name>xunit.execution.desktop.Net40</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\xunit.extensions.net40\xunit.extensions.Net40.csproj">
+      <Project>{35b872fa-0f9a-4cf2-a639-80246f76df04}</Project>
+      <Name>xunit.extensions.Net40</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />

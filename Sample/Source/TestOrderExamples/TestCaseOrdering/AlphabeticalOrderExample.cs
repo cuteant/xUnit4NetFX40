@@ -2,13 +2,11 @@
 
 #if NET40
 namespace TestOrderExamples40
-{
-	[TestCaseOrderer("TestOrderExamples40.AlphabeticalOrderer", "TestOrderExamples")]
 #else
 namespace TestOrderExamples45
-{
-	[TestCaseOrderer("TestOrderExamples45.AlphabeticalOrderer", "TestOrderExamples")]
 #endif
+{
+	[TestCaseOrderer("Xunit.AlphabeticalOrderer", "xunit.extensions")]
 	public class AlphabeticalOrderExample
 	{
 		public static bool Test1Called;

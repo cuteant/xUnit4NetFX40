@@ -4,11 +4,7 @@ using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-#if NET40
-namespace TestOrderExamples40
-#else
-namespace TestOrderExamples45
-#endif
+namespace Xunit
 {
 	public class AlphabeticalOrderer : ITestCaseOrderer
 	{
