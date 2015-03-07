@@ -40,12 +40,16 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\xunit.abstractions.2.0.0-rc3-build2917\lib\net35\xunit.abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ordering\CollectionDisplayNameOrderer.cs" />
+    <Compile Include="Data\ExcelDataAttribute.cs" />
     <Compile Include="Ordering\AlphabeticalOrderer.cs" />
     <Compile Include="Ordering\PriorityOrderer.cs" />
     <Compile Include="Ordering\TestPriorityAttribute.cs" />

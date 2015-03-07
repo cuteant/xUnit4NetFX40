@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Xunit;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
-#if NET40
-namespace TestOrderExamples40
-#else
-namespace TestOrderExamples45
-#endif
+namespace Xunit
 {
-	public class DisplayNameOrderer : ITestCollectionOrderer
+	public class CollectionDisplayNameOrderer : ITestCollectionOrderer
 	{
 		public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> testCollections)
 		{

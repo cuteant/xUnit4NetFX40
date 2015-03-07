@@ -53,6 +53,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.IO">
       <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.IO.dll</HintPath>
     </Reference>
@@ -63,6 +64,7 @@
     <Reference Include="System.Threading.Tasks">
       <HintPath>..\packages\Microsoft.Bcl.1.1.10\lib\net40\System.Threading.Tasks.dll</HintPath>
     </Reference>
+    <Reference Include="System.XML" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\xunit.abstractions.2.0.0-rc3-build2917\lib\net35\xunit.abstractions.dll</HintPath>
@@ -73,8 +75,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\xunit.extensions.net45\Data\ExcelDataAttribute.cs">
+      <Link>Data\ExcelDataAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\xunit.extensions.net45\Ordering\AlphabeticalOrderer.cs">
       <Link>Ordering\AlphabeticalOrderer.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Ordering\CollectionDisplayNameOrderer.cs">
+      <Link>Ordering\CollectionDisplayNameOrderer.cs</Link>
     </Compile>
     <Compile Include="..\xunit.extensions.net45\Ordering\PriorityOrderer.cs">
       <Link>Ordering\PriorityOrderer.cs</Link>

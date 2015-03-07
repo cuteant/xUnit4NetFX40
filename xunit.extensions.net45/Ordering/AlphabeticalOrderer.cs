@@ -11,9 +11,10 @@ namespace Xunit
 		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
 			where TTestCase : ITestCase
 		{
-			var result = testCases.ToList();
-			result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
-			return result;
+			//var result = testCases.ToList();
+			//result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod.Method.Name, y.TestMethod.Method.Name));
+			//return result;
+			return testCases.OrderBy(_ => _.TestMethod.Method.Name, StringComparer.OrdinalIgnoreCase);
 		}
 	}
 }
