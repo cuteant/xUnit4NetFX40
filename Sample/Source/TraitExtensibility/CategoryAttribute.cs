@@ -10,7 +10,11 @@ namespace TraitExtensibility45
 	/// <summary>
 	/// Apply this attribute to your test method to specify a category.
 	/// </summary>
-	[TraitDiscoverer("CategoryDiscoverer", "TraitExtensibility")]
+#if NET40
+	[TraitDiscoverer("TraitExtensibility40.CategoryDiscoverer", "TraitExtensibility")]
+#else
+	[TraitDiscoverer("TraitExtensibility45.CategoryDiscoverer", "TraitExtensibility")]
+#endif
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 	class CategoryAttribute : Attribute, ITraitAttribute
 	{

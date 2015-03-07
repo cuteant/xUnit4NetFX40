@@ -14,5 +14,11 @@ namespace TraitExtensibility45
 		{
 			Assert.True(true);
 		}
+
+		[Fact, Trait("Group", "Category")]
+		public void ExampleFactA()
+		{
+			Assert.True(true);
+		}
 	}
 }

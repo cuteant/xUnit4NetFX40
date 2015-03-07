@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
+using System.Windows.Forms;
 using Xunit;
 
 #if NET40
@@ -26,6 +28,17 @@ namespace STAExamples45
 		public static void STATheory_OnSTAThread(int unused)
 		{
 			Assert.Equal(ApartmentState.STA, Thread.CurrentThread.GetApartmentState());
+		}
+
+		[STATheory]
+		[InlineData("aaa")]
+		[InlineData("bbb")]
+		[InlineData("ccc")]
+		public static void STATheory_ChangingButtonText(string text)
+		{
+			var btn = new Button();
+			btn.Text = text;
+			Assert.Equal(text, btn.Text);
 		}
 	}
 }
