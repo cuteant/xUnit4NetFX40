@@ -75,8 +75,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\xunit.extensions.net45\Data\ExcelDataAttribute.cs">
-      <Link>Data\ExcelDataAttribute.cs</Link>
+    <Compile Include="..\xunit.extensions.net45\AssumeIdentityAttribute.cs">
+      <Link>AssumeIdentityAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\ExcelDataAttribute.cs">
+      <Link>ExcelDataAttribute.cs</Link>
     </Compile>
     <Compile Include="..\xunit.extensions.net45\Ordering\AlphabeticalOrderer.cs">
       <Link>Ordering\AlphabeticalOrderer.cs</Link>
@@ -93,8 +96,17 @@
     <Compile Include="..\xunit.extensions.net45\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\xunit.extensions.net45\Security\AssumeIdentityAttribute.cs">
-      <Link>Security\AssumeIdentityAttribute.cs</Link>
+    <Compile Include="..\xunit.extensions.net45\Retry\DelayedMessageBus.cs">
+      <Link>Retry\DelayedMessageBus.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Retry\RetryFactAttribute.cs">
+      <Link>Retry\RetryFactAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Retry\RetryFactDiscoverer.cs">
+      <Link>Retry\RetryFactDiscoverer.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Retry\RetryTestCase.cs">
+      <Link>Retry\RetryTestCase.cs</Link>
     </Compile>
     <Compile Include="..\xunit.extensions.net45\STA\STAFactAttribute.cs">
       <Link>STA\STAFactAttribute.cs</Link>
