@@ -101,11 +101,47 @@ namespace Xunit.Sdk
 
 			var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
 			if (testCaseOrdererAttribute != null)
-				TestCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, testCaseOrdererAttribute);
+			{
+				try
+				{
+					var testCaseOrderer = ExtensibilityPointFactory.GetTestCaseOrderer(DiagnosticMessageSink, testCaseOrdererAttribute);
+					if (testCaseOrderer != null)
+						TestCaseOrderer = testCaseOrderer;
+					else
+					{
+						var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+						DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test case orderer", args[0], args[1]));
+					}
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+					var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+				}
+			}
 
 			var testCollectionOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCollectionOrdererAttribute)).SingleOrDefault();
 			if (testCollectionOrdererAttribute != null)
-				TestCollectionOrderer = ExtensibilityPointFactory.GetTestCollectionOrderer(DiagnosticMessageSink, testCollectionOrdererAttribute);
+			{
+				try
+				{
+					var testCollectionOrderer = ExtensibilityPointFactory.GetTestCollectionOrderer(DiagnosticMessageSink, testCollectionOrdererAttribute);
+					if (testCollectionOrderer != null)
+						TestCollectionOrderer = testCollectionOrderer;
+					else
+					{
+						var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+						DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test collection orderer", args[0], args[1]));
+					}
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+					var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+				}
+			}
 
 			initialized = true;
 		}
@@ -145,14 +181,14 @@ namespace Xunit.Sdk
 			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
 #if NET_4_0_ABOVE
-			var tasks = OrderTestCases().Select(
+			var tasks = OrderTestCollections().Select(
 					collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
 																																					 cancellationTokenSource.Token,
 																																					 TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler,
 																																					 scheduler)
 			).ToArray();
 #else
-			var tasks = OrderTestCases().Select(
+			var tasks = OrderTestCollections().Select(
 					collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
 																																					 cancellationTokenSource.Token,
 																																					 TaskCreationOptions.None,

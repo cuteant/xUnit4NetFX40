@@ -34,7 +34,7 @@ namespace Xunit
 #endif
 		public static Attribute[] GetCustomAttributes(this Assembly assembly)
 		{
-#if NEW_REFLECTION
+#if NET_4_0_ABOVE
 			return assembly.GetCustomAttributes<Attribute>().ToArray();
 #else
 			return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
@@ -49,7 +49,7 @@ namespace Xunit
 #endif
 		public static bool IsEnum(this Type type)
 		{
-#if NEW_REFLECTION
+#if NET_4_0_ABOVE
 			return type.GetTypeInfo().IsEnum;
 #else
 			return type.IsEnum;
@@ -62,7 +62,7 @@ namespace Xunit
 
 			try
 			{
-#if NEW_REFLECTION
+#if NET_4_0_ABOVE
 				Assembly.Load(new AssemblyName { Name = assemblyName });
 #else
 				Assembly.Load(assemblyName);
@@ -83,10 +83,22 @@ namespace Xunit
 #endif
 		public static bool IsGenericType(this Type type)
 		{
-#if NEW_REFLECTION
+#if NET_4_0_ABOVE
 			return type.GetTypeInfo().IsGenericType;
 #else
 			return type.IsGenericType;
+#endif
+		}
+
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static bool IsGenericTypeDefinition(this Type type)
+		{
+#if NET_4_0_ABOVE
+			return type.GetTypeInfo().IsGenericTypeDefinition;
+#else
+			return type.IsGenericTypeDefinition;
 #endif
 		}
 
@@ -97,7 +109,7 @@ namespace Xunit
 
 		public static bool IsValueType(this Type type)
 		{
-#if NEW_REFLECTION
+#if NET_4_0_ABOVE
 			return type.GetTypeInfo().IsValueType;
 #else
 			return type.IsValueType;
