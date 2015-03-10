@@ -55,10 +55,13 @@
     <Compile Include="Ordering\TestPriorityAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Retry\DelayedMessageBus.cs" />
+    <Compile Include="Repeat\RepeatFactAttribute.cs" />
+    <Compile Include="Repeat\RepeatFactDiscoverer.cs" />
+    <Compile Include="Repeat\RepeatTestCase.cs" />
+    <Compile Include="AssumeIdentityAttribute.cs" />
     <Compile Include="Retry\RetryFactAttribute.cs" />
     <Compile Include="Retry\RetryFactDiscoverer.cs" />
     <Compile Include="Retry\RetryTestCase.cs" />
-    <Compile Include="AssumeIdentityAttribute.cs" />
     <Compile Include="STA\STAFactAttribute.cs" />
     <Compile Include="STA\STAFactDiscoverer.cs" />
     <Compile Include="STA\STATestCase.cs" />

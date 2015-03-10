@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 
 #if NET40
 namespace RetryFactExample40
@@ -47,10 +48,42 @@ namespace RetryFactExample45
 				counter.RunCount++;
 			}
 
-			[RetryFact(MaxRetries = 2)]
+			[RetryFact(MaxRetries = 3)]
 			public void IWillPassTheSecondTime()
 			{
 				Assert.Equal(2, counter.RunCount);
+			}
+		}
+
+		/// <summary>
+		/// RepeatFactSample
+		/// </summary>
+		public class RepeatFactSample : IClassFixture<CounterFixture>, IDisposable
+		{
+			private readonly CounterFixture counter;
+
+			public RepeatFactSample(CounterFixture counter)
+			{
+				this.counter = counter;
+
+				counter.RunCount++;
+			}
+
+			public void Dispose()
+			{
+				Console.WriteLine("Dispose");
+			}
+
+			[RepeatFact(Count = 3)]
+			public void IWillRunThreeTimes()
+			{
+				Assert.True(counter.RunCount <= 3);
+			}
+
+			[RepeatFact(Count = 3)]
+			public void IWillFailTheOneTime()
+			{
+				Assert.True(counter.RunCount > 3);
 			}
 		}
 	}
