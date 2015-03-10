@@ -123,6 +123,12 @@
     <Compile Include="..\xunit.extensions.net45\STA\STATheoryDiscoverer.cs">
       <Link>STA\STATheoryDiscoverer.cs</Link>
     </Compile>
+    <Compile Include="..\xunit.extensions.net45\Trait\CategoryAttribute.cs">
+      <Link>Trait\CategoryAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\xunit.extensions.net45\Trait\CategoryDiscoverer.cs">
+      <Link>Trait\CategoryDiscoverer.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.core.net40\xunit.core.Net40.csproj">

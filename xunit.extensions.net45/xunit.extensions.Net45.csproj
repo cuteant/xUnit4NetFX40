@@ -64,6 +64,8 @@
     <Compile Include="STA\STATestCase.cs" />
     <Compile Include="STA\STATheoryAttribute.cs" />
     <Compile Include="STA\STATheoryDiscoverer.cs" />
+    <Compile Include="Trait\CategoryAttribute.cs" />
+    <Compile Include="Trait\CategoryDiscoverer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\xunit.core.net45\xunit.core.Net45.csproj">
