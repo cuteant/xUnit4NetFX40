@@ -1,5 +1,8 @@
 using System;
 using System.Reflection;
+#if NET_4_5_BELOW
+using Nito.AsyncEx.Internal.PlatformEnlightenment;
+#endif
 
 internal static class ExceptionExtensions
 {
@@ -20,7 +23,7 @@ internal static class ExceptionExtensions
 #if NET_4_0_ABOVE
 		System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex).Throw();
 #else
-		throw ex;
+		throw ExceptionEnlightenment.PrepareForRethrow(ex);
 #endif
 #else
 		FieldInfo remoteStackTraceString =

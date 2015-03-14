@@ -97,6 +97,8 @@
     <Compile Include="..\xunit.assert\ReflectExtensions.cs">
       <Link>ReflectExtensions.cs</Link>
     </Compile>
+    <Compile Include="ExceptionEnlightenment.cs" />
+    <Compile Include="ReflectionHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\xunit.core\**\*.cs">
