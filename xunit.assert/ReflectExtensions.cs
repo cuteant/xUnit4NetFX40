@@ -29,6 +29,7 @@ namespace Xunit
 #endif
 		}
 
+#if !ASPNET50 && !ASPNETCORE50
 #if NET_4_0_ABOVE
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif
@@ -40,6 +41,7 @@ namespace Xunit
 			return assembly.GetCustomAttributes(inherit: false).Cast<Attribute>().ToArray();
 #endif
 		}
+#endif
 
 		/// <summary>IsEnum</summary>
 		/// <param name="type"></param>

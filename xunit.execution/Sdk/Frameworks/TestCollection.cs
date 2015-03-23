@@ -45,7 +45,7 @@ namespace Xunit.Sdk
 		public Guid UniqueID { get; set; }
 
 		/// <inheritdoc/>
-		public void Serialize(IXunitSerializationInfo info)
+		public virtual void Serialize(IXunitSerializationInfo info)
 		{
 			info.AddValue("DisplayName", DisplayName);
 			info.AddValue("TestAssembly", TestAssembly);
@@ -64,7 +64,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
-		public void Deserialize(IXunitSerializationInfo info)
+		public virtual void Deserialize(IXunitSerializationInfo info)
 		{
 			DisplayName = info.GetValue<string>("DisplayName");
 			TestAssembly = info.GetValue<ITestAssembly>("TestAssembly");
