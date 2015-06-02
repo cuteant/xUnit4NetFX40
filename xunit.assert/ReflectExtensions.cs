@@ -29,7 +29,7 @@ namespace Xunit
 #endif
 		}
 
-#if !ASPNET50 && !ASPNETCORE50
+#if !DNX451 && !DNXCORE50
 #if NET_4_0_ABOVE
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 #endif

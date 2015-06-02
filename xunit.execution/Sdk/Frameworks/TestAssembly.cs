@@ -31,7 +31,7 @@ namespace Xunit.Sdk
 			ConfigFileName = configFileName;
 			Assembly = assembly;
 
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
 			if (ConfigFileName == null)
 				ConfigFileName = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
@@ -56,7 +56,8 @@ namespace Xunit.Sdk
 			var assemblyPath = info.GetValue<string>("AssemblyPath");
 			var assembly = System.Reflection.Assembly.Load(new AssemblyName
 			{
-				Name = Path.GetFileNameWithoutExtension(assemblyPath)
+				Name = Path.GetFileNameWithoutExtension(assemblyPath),
+				Version = new Version(0, 0)
 			});
 
 			ConfigFileName = info.GetValue<string>("ConfigFileName");

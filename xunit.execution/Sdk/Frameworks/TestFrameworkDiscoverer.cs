@@ -91,11 +91,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-#if NET_4_0_ABOVE
-			Task.Run(() =>
-#else
-			TaskEx.Run(() =>
-#endif
+			XunitWorkerThread.QueueUserWorkItem(() =>
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
@@ -127,11 +123,7 @@ namespace Xunit.Sdk
 			Guard.ArgumentNotNull("discoveryMessageSink", discoveryMessageSink);
 			Guard.ArgumentNotNull("discoveryOptions", discoveryOptions);
 
-#if NET_4_0_ABOVE
-			Task.Run(() =>
-#else
-			TaskEx.Run(() =>
-#endif
+			XunitWorkerThread.QueueUserWorkItem(() =>
 			{
 				using (var messageBus = CreateMessageBus(discoveryMessageSink, discoveryOptions))
 				using (new PreserveWorkingFolder(AssemblyInfo))
@@ -206,13 +198,13 @@ namespace Xunit.Sdk
 
 		class PreserveWorkingFolder : IDisposable
 		{
-#if !WINDOWS_PHONE_APP &&!WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP &&!WINDOWS_PHONE && !DNX451 && !DNXCORE50
 			readonly string originalWorkingFolder;
 #endif
 
 			public PreserveWorkingFolder(IAssemblyInfo assemblyInfo)
 			{
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNX451 && !DNXCORE50
 				originalWorkingFolder = Directory.GetCurrentDirectory();
 
 				if (!String.IsNullOrEmpty(assemblyInfo.AssemblyPath))
@@ -222,7 +214,7 @@ namespace Xunit.Sdk
 
 			public void Dispose()
 			{
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNET50 && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNX451 && !DNXCORE50
 				Directory.SetCurrentDirectory(originalWorkingFolder);
 #endif
 			}

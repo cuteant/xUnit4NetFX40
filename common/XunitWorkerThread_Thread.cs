@@ -3,24 +3,25 @@ using System.Threading;
 
 namespace Xunit.Sdk
 {
-	internal class XunitWorkerThread
-	{
-		private readonly Thread thread;
+    internal class XunitWorkerThread
+    {
+        readonly Thread thread;
 
-		public XunitWorkerThread(Action threadProc)
-		{
-			thread = new Thread(() => threadProc());
-			thread.Start();
-		}
+        public XunitWorkerThread(Action threadProc)
+        {
+            thread = new Thread(() => threadProc()) { IsBackground = true };
+            thread.Start();
+        }
 
-		public void Join()
-		{
-			thread.Join();
-		}
+        public void Join()
+        {
+            if (thread != Thread.CurrentThread)
+                thread.Join();
+        }
 
-		public static void QueueUserWorkItem(Action backgroundTask)
-		{
-			ThreadPool.QueueUserWorkItem(_ => backgroundTask());
-		}
-	}
+        public static void QueueUserWorkItem(Action backgroundTask)
+        {
+            ThreadPool.QueueUserWorkItem(_ => backgroundTask());
+        }
+    }
 }

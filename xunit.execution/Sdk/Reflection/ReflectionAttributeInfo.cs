@@ -142,7 +142,7 @@ namespace Xunit.Sdk
 			foreach (var namedArg in attributeData.NamedArguments)
 			{
 #if NET_4_0_ABOVE
-				(ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, namedArg.TypedValue.Value, index: null);
+				(ati.GetRuntimeProperty(namedArg.MemberName)).SetValue(attribute, GetTypedValue(namedArg.TypedValue), index: null);
 #else
 				(ati.GetPropertyEx(namedArg.MemberInfo.Name, false)).SetValue(attribute, namedArg.TypedValue.Value, index: null);
 #endif
@@ -150,6 +150,26 @@ namespace Xunit.Sdk
 
 			return attribute;
 		}
+
+#if NET_4_0_ABOVE
+		private object GetTypedValue(CustomAttributeTypedArgument arg)
+		{
+			var collect = arg.Value as IReadOnlyCollection<CustomAttributeTypedArgument>;
+
+			if (collect == null)
+				return arg.Value;
+
+			var argType = arg.ArgumentType.GetElementType();
+			Array destinationArray = Array.CreateInstance(argType, collect.Count);
+
+			if (argType.IsEnum())
+				Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value)).ToArray(), destinationArray, collect.Count);
+			else
+				Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);
+
+			return destinationArray;
+		}
+#endif
 
 		/// <inheritdoc/>
 		public override string ToString()

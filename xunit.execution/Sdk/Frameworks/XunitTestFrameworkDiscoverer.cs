@@ -37,7 +37,7 @@ namespace Xunit.Sdk
 			var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
 			string config = null;
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !ASPNETCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
 			config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
 			var testAssembly = new TestAssembly(assemblyInfo, config);
@@ -70,7 +70,15 @@ namespace Xunit.Sdk
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
 		protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).FirstOrDefault();
+			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).ToList();
+			if (factAttributes.Count > 1)
+			{
+				var message = string.Format("Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.Class.Name, testMethod.Method.Name);
+				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, testMethod, message);
+				return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
+			}
+
+			var factAttribute = factAttributes.FirstOrDefault();
 			if (factAttribute == null)
 				return true;
 
