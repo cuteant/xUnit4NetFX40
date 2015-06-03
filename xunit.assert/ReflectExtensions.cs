@@ -137,7 +137,22 @@ namespace Xunit
 #if NET_4_0_ABOVE
 			return type.GetTypeInfo().GenericTypeArguments;
 #else
-			return type.GetGenericArguments();
+			return type.IsGenericType && !type.IsGenericTypeDefinition ? type.GetGenericArguments() : Type.EmptyTypes;
+#endif
+		}
+
+		/// <summary>获取当前类型的泛型参数的数组。</summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
+#if NET_4_0_ABOVE
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+		public static Type[] GenericTypeParametersEx(this Type type)
+		{
+#if NET_4_0_ABOVE
+			return type.GetTypeInfo().GenericTypeParameters;
+#else
+			return type.IsGenericTypeDefinition ? type.GetGenericArguments() : Type.EmptyTypes;
 #endif
 		}
 

@@ -57,7 +57,10 @@ namespace Xunit.Sdk
 			var assembly = System.Reflection.Assembly.Load(new AssemblyName
 			{
 				Name = Path.GetFileNameWithoutExtension(assemblyPath),
+#if DNX451 || DNXCORE50
+				// Allow AspNet assemblies to load correctly when treated as platform
 				Version = new Version(0, 0)
+#endif
 			});
 
 			ConfigFileName = info.GetValue<string>("ConfigFileName");
