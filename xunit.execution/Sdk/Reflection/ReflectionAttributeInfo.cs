@@ -39,13 +39,26 @@ namespace Xunit.Sdk
 				// being the exact matching type, so the inner values must be converted.
 				var valueAsEnumerable = value as IEnumerable<CustomAttributeTypedArgument>;
 				if (valueAsEnumerable != null)
+				{
 					value = Convert(valueAsEnumerable).ToArray();
+				}
 #if NET_4_0_ABOVE
 				else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
 #else
 				else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsEnum)
 #endif
+				{
 					value = Enum.Parse(argument.ArgumentType, value.ToString());
+				}
+
+#if NET_4_0_ABOVE
+				if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
+#else
+				if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.IsArray)
+#endif
+				{
+					value = Reflector.ConvertArguments(new[] { value }, new[] { argument.ArgumentType })[0];
+				}
 
 				yield return value;
 			}

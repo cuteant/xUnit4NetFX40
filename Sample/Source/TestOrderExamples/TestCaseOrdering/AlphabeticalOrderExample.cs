@@ -6,7 +6,7 @@ namespace TestOrderExamples40
 namespace TestOrderExamples45
 #endif
 {
-	[TestCaseOrderer("Xunit.AlphabeticalOrderer", "xunit.extensions")]
+	[TestCaseOrderer("Xunit.AlphabeticalOrderer", "xunit.extensions2")]
 	public class AlphabeticalOrderExample
 	{
 		public static bool Test1Called;
