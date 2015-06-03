@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Xunit</RootNamespace>
-    <AssemblyName>xunit.extensions</AssemblyName>
+    <AssemblyName>xunit.extensions2</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>7ecb5c32</NuGetPackageImportStamp>
@@ -21,7 +21,7 @@
     <DefineConstants>TRACE;DEBUG;NET_4_0;NET_3_5_ABOVE;NET_4_5_BELOW</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Deploy\net40\xunit.extensions.XML</DocumentationFile>
+    <DocumentationFile>..\Deploy\net40\xunit.extensions2.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <DefineConstants>TRACE;NET_4_0;NET_3_5_ABOVE;NET_4_5_BELOW</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Deploy\net40\xunit.extensions.XML</DocumentationFile>
+    <DocumentationFile>..\Deploy\net40\xunit.extensions2.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
