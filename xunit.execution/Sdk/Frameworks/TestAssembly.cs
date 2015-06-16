@@ -59,7 +59,7 @@ namespace Xunit.Sdk
 				Name = Path.GetFileNameWithoutExtension(assemblyPath),
 #if DNX451 || DNXCORE50
 				// Allow AspNet assemblies to load correctly when treated as platform
-				Version = new Version(0, 0)
+				Version = new Version(0, 0, 0, 0)
 #endif
 			});
 
