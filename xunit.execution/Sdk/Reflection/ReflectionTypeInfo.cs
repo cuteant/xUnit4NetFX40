@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-#if NET_4_0_ABOVE
 using System.Reflection;
-#endif
 using Xunit.Abstractions;
 
 namespace Xunit.Sdk
@@ -42,7 +40,7 @@ namespace Xunit.Sdk
 		public IEnumerable<ITypeInfo> Interfaces
 		{
 #if NET_4_0_ABOVE
-			get { return Type.GetTypeInfo().ImplementedInterfaces.Select(Reflector.Wrap).Cast<ITypeInfo>().ToList(); }
+			get { return Type.GetTypeInfo().ImplementedInterfaces.Select(i => Reflector.Wrap(i)).ToList(); }
 #else
 			get { return Type.GetInterfaces().Select(Reflector.Wrap).Cast<ITypeInfo>().ToList(); }
 #endif
@@ -106,19 +104,21 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
-			return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).ToList();
+			return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).CastOrToList();
 		}
 
 		/// <inheritdoc/>
 		public IEnumerable<ITypeInfo> GetGenericArguments()
 		{
 #if NET_4_0_ABOVE
-			return Type.GetTypeInfo().GenericTypeArguments.Select(Reflector.Wrap).ToList();
+			return Type.GetTypeInfo().GenericTypeArguments
+								 .Select(t => Reflector.Wrap(t))
+								 .ToList();
 #else
 			var typeArgs = Type.IsGenericType && !Type.IsGenericTypeDefinition
 										? Type.GetGenericArguments()
 										: Type.EmptyTypes;
-			return typeArgs.Select(Reflector.Wrap).ToList();
+			return typeArgs.Select(t => Reflector.Wrap(t)).ToList();
 #endif
 		}
 
@@ -136,10 +136,12 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IEnumerable<IMethodInfo> GetMethods(bool includePrivateMethods)
 		{
-			return Type.GetRuntimeMethodsEx().Where(m => includePrivateMethods || m.IsPublic)
-								 .Select(Reflector.Wrap)
-								 .Cast<IMethodInfo>()
-								 .ToList();
+			var methodInfos = Type.GetRuntimeMethodsEx();
+			if (!includePrivateMethods)
+			{
+				methodInfos = methodInfos.Where(m => m.IsPublic);
+			}
+			return methodInfos.Select(m => Reflector.Wrap(m)).ToList();
 		}
 
 		/// <inheritdoc/>

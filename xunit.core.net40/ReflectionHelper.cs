@@ -11,6 +11,9 @@ namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 	/// <summary>This class taken from Stephen Cleary's AsyncEx Library(https://github.com/StephenCleary/AsyncEx)</summary>
 	public static class ReflectionHelper
 	{
+		/// <summary>Type</summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
 		public static Type Type(String typeName)
 		{
 			try
@@ -35,6 +38,11 @@ namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 			return null;
 		}
 
+		/// <summary>Compile</summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="body"></param>
+		/// <param name="parameters"></param>
+		/// <returns></returns>
 		public static T Compile<T>(Expression body, params ParameterExpression[] parameters) where T : class
 		{
 			if (body == null || parameters.Any(x => x == null))
@@ -49,6 +57,11 @@ namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 			return null;
 		}
 
+		/// <summary>Call</summary>
+		/// <param name="type"></param>
+		/// <param name="methodName"></param>
+		/// <param name="arguments"></param>
+		/// <returns></returns>
 		public static MethodCallExpression Call(Type type, string methodName, params Expression[] arguments)
 		{
 			if (type == null || arguments.Any(x => x == null))
@@ -63,6 +76,11 @@ namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 			return null;
 		}
 
+		/// <summary>Call</summary>
+		/// <param name="instance"></param>
+		/// <param name="methodName"></param>
+		/// <param name="arguments"></param>
+		/// <returns></returns>
 		public static MethodCallExpression Call(Expression instance, string methodName, params Expression[] arguments)
 		{
 			if (instance == null || arguments.Any(x => x == null))
@@ -77,6 +95,12 @@ namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 			return null;
 		}
 
+		/// <summary>Call</summary>
+		/// <param name="instance"></param>
+		/// <param name="methodName"></param>
+		/// <param name="flags"></param>
+		/// <param name="arguments"></param>
+		/// <returns></returns>
 		public static MethodCallExpression Call(Expression instance, string methodName, BindingFlags flags, params Expression[] arguments)
 		{
 			if (instance == null || arguments.Any(x => x == null))

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 #if NET_4_0_ABOVE
@@ -12,7 +11,6 @@ namespace Xunit.Sdk
 	/// <summary>
 	/// Base class for exceptions that have actual and expected values
 	/// </summary>
-	[SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
 	public class AssertActualExpectedException : XunitException
 	{
 		/// <summary>
@@ -24,7 +22,7 @@ namespace Xunit.Sdk
 		/// <param name="expectedTitle">The title to use for the expected value (defaults to "Expected")</param>
 		/// <param name="actualTitle">The title to use for the actual value (defaults to "Actual")</param>
 		public AssertActualExpectedException(object expected, object actual, string userMessage, string expectedTitle = null, string actualTitle = null)
-			: base(userMessage)
+				: base(userMessage)
 		{
 			Actual = actual == null ? null : ConvertToString(actual);
 			ActualTitle = actualTitle ?? "Actual";
@@ -36,8 +34,8 @@ namespace Xunit.Sdk
 					Actual == Expected &&
 					actual.GetType() != expected.GetType())
 			{
-				Actual += String.Format(CultureInfo.CurrentCulture, " ({0})", actual.GetType().FullName);
-				Expected += String.Format(CultureInfo.CurrentCulture, " ({0})", expected.GetType().FullName);
+				Actual += string.Format(CultureInfo.CurrentCulture, " ({0})", actual.GetType().FullName);
+				Expected += string.Format(CultureInfo.CurrentCulture, " ({0})", expected.GetType().FullName);
 			}
 		}
 
@@ -74,7 +72,7 @@ namespace Xunit.Sdk
 				var formattedExpectedTitle = (ExpectedTitle + ":").PadRight(titleLength);
 				var formattedActualTitle = (ActualTitle + ":").PadRight(titleLength);
 
-				return String.Format(CultureInfo.CurrentCulture,
+				return string.Format(CultureInfo.CurrentCulture,
 														 "{0}{5}{1}{2}{5}{3}{4}",
 														 base.Message,
 														 formattedExpectedTitle,

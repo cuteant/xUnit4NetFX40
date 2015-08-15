@@ -11,9 +11,9 @@ namespace Xunit.Serialization
     /// <summary>
     /// A mirror class of the CLR's <see cref="T:System.Runtime.Serialization.SerializationInfo"/> class.
     /// </summary>
-    internal class XunitSerializationInfo : IXunitSerializationInfo
+    class XunitSerializationInfo : IXunitSerializationInfo
     {
-        private readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
+        readonly IDictionary<string, XunitSerializationTriple> data = new Dictionary<string, XunitSerializationTriple>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class.
@@ -59,7 +59,7 @@ namespace Xunit.Serialization
         /// </summary>
         public string ToSerializedString()
         {
-            return ToBase64(String.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
+            return ToBase64(string.Join("\n", data.Select(kvp => SerializeTriple(kvp.Value)).ToArray()));
         }
 
         /// <summary>
@@ -73,9 +73,9 @@ namespace Xunit.Serialization
             var serializedValue = Serialize(triple.Value);
             // Leaving off the colon is how we indicate null-ness
             if (serializedValue == null)
-                return String.Format("{0}:{1}", triple.Key, serializedType);
+                return $"{triple.Key}:{serializedType}";
 
-            return String.Format("{0}:{1}:{2}", triple.Key, serializedType, serializedValue);
+            return $"{triple.Key}:{serializedType}:{serializedValue}";
         }
 
         /// <summary>
@@ -110,53 +110,53 @@ namespace Xunit.Serialization
                 return DeserializeSerializable(type, serializedValue);
 
             if (type == typeof(char?) || type == typeof(char))
-                return (char)UInt16.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return (char)ushort.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(string))
                 return FromBase64(serializedValue);
 
             if (type == typeof(byte?) || type == typeof(byte))
-                return Byte.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return byte.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(short?) || type == typeof(short))
-                return Int16.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return short.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(ushort?) || type == typeof(ushort))
-                return UInt16.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return ushort.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(int?) || type == typeof(int))
-                return Int32.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return int.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(uint?) || type == typeof(uint))
-                return UInt32.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return uint.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(long?) || type == typeof(long))
-                return Int64.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return long.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(ulong?) || type == typeof(ulong))
-                return UInt64.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return ulong.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(float?) || type == typeof(float))
-                return Single.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return float.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(double?) || type == typeof(double))
-                return Double.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return double.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(decimal?) || type == typeof(decimal))
-                return Decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
+                return decimal.Parse(serializedValue, CultureInfo.InvariantCulture);
 
             if (type == typeof(bool?) || type == typeof(bool))
-                return Boolean.Parse(serializedValue);
+                return bool.Parse(serializedValue);
 
             if (type == typeof(DateTime?) || type == typeof(DateTime))
             {
-                var styles = serializedValue.EndsWith("Z") ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+                var styles = serializedValue.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
                 return DateTime.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
             }
 
             if (type == typeof(DateTimeOffset?) || type == typeof(DateTimeOffset))
             {
-                var styles = serializedValue.EndsWith("Z") ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+                var styles = serializedValue.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
                 return DateTimeOffset.Parse(serializedValue, CultureInfo.InvariantCulture, styles);
             }
 
@@ -172,23 +172,35 @@ namespace Xunit.Serialization
                 return arrSer.ArrayData;
             }
 
-            throw new ArgumentException("We don't know how to de-serialize type " + type.FullName, "serializedValue");
+            throw new ArgumentException("We don't know how to de-serialize type " + type.FullName, nameof(serializedValue));
         }
 
         static IXunitSerializable DeserializeSerializable(Type type, string serializedValue)
         {
             var serializationInfo = new XunitSerializationInfo();
-            var elements = FromBase64(serializedValue).Split('\n');
 
-            foreach (var element in elements)
+            // Will end up with an empty string if the serialization type did not serialize any data
+            if (serializedValue != string.Empty)
             {
-                var triple = DeserializeTriple(element);
-                serializationInfo.data[triple.Key] = triple;
+                var elements = FromBase64(serializedValue).Split('\n');
+
+                foreach (var element in elements)
+                {
+                    var triple = DeserializeTriple(element);
+                    serializationInfo.data[triple.Key] = triple;
+                }
             }
 
-            var value = (IXunitSerializable)Activator.CreateInstance(type);
-            value.Deserialize(serializationInfo);
-            return value;
+            try
+            {
+                var value = (IXunitSerializable)Activator.CreateInstance(type);
+                value.Deserialize(serializationInfo);
+                return value;
+            }
+            catch (MissingMemberException)
+            {
+                throw new InvalidOperationException($"Could not de-serialize type '{type.FullName}' because it lacks a parameterless constructor.");
+            }
         }
 
         /// <summary>
@@ -247,11 +259,11 @@ namespace Xunit.Serialization
 
             var floatData = value as float?;
             if (floatData != null)
-                return floatData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+                return floatData.GetValueOrDefault().ToString("R", CultureInfo.InvariantCulture);
 
             var doubleData = value as double?;
             if (doubleData != null)
-                return doubleData.GetValueOrDefault().ToString(CultureInfo.InvariantCulture);
+                return doubleData.GetValueOrDefault().ToString("R", CultureInfo.InvariantCulture);
 
             var decimalData = value as decimal?;
             if (decimalData != null)
@@ -273,7 +285,7 @@ namespace Xunit.Serialization
             if (typeData != null)
             {
                 if (!typeData.IsFromLocalAssembly())
-                    throw new ArgumentException(String.Format("We cannot serialize type {0} because it lives in the GAC", typeData.FullName), "value");
+                    throw new ArgumentException($"We cannot serialize type {typeData.FullName} because it lives in the GAC", nameof(value));
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
             }
 
@@ -281,7 +293,7 @@ namespace Xunit.Serialization
             if (valueType.IsEnum())
             {
                 if (!valueType.IsFromLocalAssembly())
-                    throw new ArgumentException(String.Format("We cannot serialize enum {0}.{1} because it lives in the GAC", valueType.FullName, value), "value");
+                    throw new ArgumentException($"We cannot serialize enum {valueType.FullName}.{value} because it lives in the GAC", nameof(value));
                 return value.ToString();
             }
 
@@ -294,10 +306,10 @@ namespace Xunit.Serialization
                 return info.ToSerializedString();
             }
 
-            throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, "value");
+            throw new ArgumentException("We don't know how to serialize type " + valueType.FullName, nameof(value));
         }
 
-        static readonly Type[] supportedSerializationTypes = new[] {
+        static readonly Type[] supportedSerializationTypes = {
             typeof(IXunitSerializable),
             typeof(char),           typeof(char?),
             typeof(string),
@@ -317,31 +329,58 @@ namespace Xunit.Serialization
             typeof(DateTimeOffset), typeof(DateTimeOffset?),
         };
 
-        private static bool CanSerializeObject(object value)
+        internal static bool CanSerializeObject(object value)
         {
             if (value == null)
                 return true;
 
             var valueType = value.GetType();
+
             if (valueType.IsArray)
-                return ((Array)value).Cast<object>().All(CanSerializeObject);
-
-            if (valueType.IsEnum() || valueType.IsNullableEnum())
+            {
+                var vector = value as object[];
+                if (vector != null)
+                {
+                    // Avoid enumerator allocation and bounds lookups that comes from enumerating a System.Array
+                    foreach (object obj in vector)
+                    {
+                        if (!CanSerializeObject(obj))
+                            return false;
+                    }
+                }
+                else
+                {
+                    foreach (object obj in ((Array)value))
+                    {
+                        if (!CanSerializeObject(obj))
+                            return false;
+                    }
+                }
                 return true;
+            }
 
-            if (supportedSerializationTypes.Any(supportedType => supportedType.IsAssignableFrom(valueType)))
-                return true;
+            foreach (Type supportedType in supportedSerializationTypes)
+            {
+                if (supportedType.IsAssignableFrom(valueType))
+                    return true;
+            }
+
+            Type typeToCheck = valueType;
+            if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
+            {
+                return typeToCheck.IsFromLocalAssembly();
+            }
 
             return false;
         }
 
-        private static string FromBase64(string serializedValue)
+        static string FromBase64(string serializedValue)
         {
             var bytes = Convert.FromBase64String(serializedValue);
             return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         }
 
-        private static string ToBase64(string value)
+        static string ToBase64(string value)
         {
             var bytes = Encoding.UTF8.GetBytes(value);
             return Convert.ToBase64String(bytes);
@@ -359,10 +398,10 @@ namespace Xunit.Serialization
             public ArraySerializer(Array array)
             {
                 if (array == null)
-                    throw new ArgumentNullException("array");
+                    throw new ArgumentNullException(nameof(array));
 
                 if (!CanSerializeObject(array))
-                    throw new ArgumentException("There is at least one object in this array that cannot be serialized", "array");
+                    throw new ArgumentException("There is at least one object in this array that cannot be serialized", nameof(array));
 
                 this.array = array;
                 elementType = array.GetType().GetElementType();
@@ -394,7 +433,7 @@ namespace Xunit.Serialization
     /// Represents a triple of information used when serializing complex types: the property name,
     /// the value to be serialized, and the value's type.
     /// </summary>
-    internal class XunitSerializationTriple
+    class XunitSerializationTriple
     {
         /// <summary>
         /// Gets the triple's key

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -12,8 +13,8 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class ReflectionMethodInfo : LongLivedMarshalByRefObject, IReflectionMethodInfo
 	{
-		private static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
-		private static readonly IEqualityComparer<IEnumerable<Type>> TypeListComparer = new AssertEqualityComparer<IEnumerable<Type>>(innerComparer: TypeComparer);
+		static readonly IEqualityComparer TypeComparer = new GenericTypeComparer();
+		static readonly IEqualityComparer<IEnumerable<Type>> TypeListComparer = new AssertEqualityComparer<IEnumerable<Type>>(innerComparer: TypeComparer);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ReflectionMethodInfo"/> class.
@@ -66,9 +67,9 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public ITypeInfo Type
 		{
-#if WINDOWS_PHONE_APP || DNXCORE50
-			// WinRT/"new reflection" does not have ReflectedType on MethodInfo
-			get { throw new NotSupportedException(); }
+#if WINDOWS_PHONE_APP || DOTNETCORE
+						// WinRT/"new reflection" does not have ReflectedType on MethodInfo
+						get { throw new NotSupportedException(); }
 #else
 			get { return Reflector.Wrap(MethodInfo.ReflectedType); }
 #endif
@@ -77,39 +78,52 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
 		{
-			return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).ToList();
+			return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
 		}
 
-		private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
+		static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, string assemblyQualifiedAttributeTypeName)
 		{
 			var attributeType = SerializationHelper.GetType(assemblyQualifiedAttributeTypeName);
 
 			return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 		}
 
-		private static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
+		static IEnumerable<IAttributeInfo> GetCustomAttributes(MethodInfo method, Type attributeType, AttributeUsageAttribute attributeUsage)
 		{
+			List<ReflectionAttributeInfo> list = null;
 #if NET_4_0_ABOVE
-			// TODO: Does this need to be CustomAttributeData?
-			IEnumerable<IAttributeInfo> results =
-					method.CustomAttributes
-								.Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
-								.OrderBy(attr => attr.AttributeType.Name)
-								.Select(Reflector.Wrap)
-								.Cast<IAttributeInfo>()
-								.ToList();
+			foreach (CustomAttributeData attr in method.CustomAttributes)
+			{
+				if (attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+				{
+					if (list == null)
+						list = new List<ReflectionAttributeInfo>();
+
+					list.Add(new ReflectionAttributeInfo(attr));
+				}
+			}
+
+			if (list != null)
+				list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
 #else
-			// TODO: Does this need to be CustomAttributeData?
-			IEnumerable<IAttributeInfo> results =
-					method.GetCustomAttributesData()
-								.Where(attr => attributeType.IsAssignableFrom(attr.Constructor.DeclaringType))
-								.OrderBy(attr => attr.Constructor.DeclaringType.Name)
-								.Select(Reflector.Wrap)
-								.Cast<IAttributeInfo>()
-								.ToList();
+			foreach (CustomAttributeData attr in method.GetCustomAttributesData())
+			{
+				if (attributeType.IsAssignableFrom(attr.Constructor.DeclaringType))
+				{
+					if (list == null)
+						list = new List<ReflectionAttributeInfo>();
+
+					list.Add(new ReflectionAttributeInfo(attr));
+				}
+			}
+
+			if (list != null)
+				list.Sort((left, right) => string.Compare(left.AttributeData.Constructor.DeclaringType.Name, right.AttributeData.Constructor.DeclaringType.Name, StringComparison.Ordinal));
 #endif
 
-			if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || !results.Any()))
+			IEnumerable<IAttributeInfo> results = list ?? Enumerable.Empty<IAttributeInfo>();
+
+			if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list == null))
 			{
 				// Need to find the parent method, which may not necessarily be on the parent type
 				var baseMethod = GetParent(method);
@@ -123,10 +137,10 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		public IEnumerable<ITypeInfo> GetGenericArguments()
 		{
-			return MethodInfo.GetGenericArguments().Select(Reflector.Wrap).ToArray();
+			return MethodInfo.GetGenericArguments().Select(t => Reflector.Wrap(t)).ToArray();
 		}
 
-		private static MethodInfo GetParent(MethodInfo method)
+		static MethodInfo GetParent(MethodInfo method)
 		{
 			if (!method.IsVirtual)
 				return null;
@@ -139,13 +153,32 @@ namespace Xunit.Sdk
 			if (baseType == null)
 				return null;
 
-			var methodParameters = method.GetParameters().Select(p => p.ParameterType).ToArray();
+			var methodParameters = method.GetParameters();
 			var methodGenericArgCount = method.GetGenericArguments().Length;
 
-			return baseType.GetMatchingMethods(method)
-										 .FirstOrDefault(m => m.Name == method.Name
-																			 && m.GetGenericArguments().Length == methodGenericArgCount
-																			 && TypeListComparer.Equals(m.GetParameters().Select(p => p.ParameterType).ToArray(), methodParameters));
+			foreach (MethodInfo m in baseType.GetMatchingMethods(method))
+			{
+				if (m.Name == method.Name &&
+						m.GetGenericArguments().Length == methodGenericArgCount &&
+						ParametersHaveSameTypes(methodParameters, m.GetParameters()))
+					return m;
+			}
+
+			return null;
+		}
+
+		static bool ParametersHaveSameTypes(ParameterInfo[] left, ParameterInfo[] right)
+		{
+			if (left.Length != right.Length)
+				return false;
+
+			for (int i = 0; i < left.Length; i++)
+			{
+				if (!TypeComparer.Equals(left[i].ParameterType, right[i].ParameterType))
+					return false;
+			}
+
+			return true;
 		}
 
 		/// <inheritdoc/>
@@ -165,17 +198,16 @@ namespace Xunit.Sdk
 		public IEnumerable<IParameterInfo> GetParameters()
 		{
 			return MethodInfo.GetParameters()
-											 .Select(Reflector.Wrap)
-											 .Cast<IParameterInfo>()
-											 .ToList();
+											 .Select(p => Reflector.Wrap(p))
+											 .ToArray();
 		}
 
-		private class GenericTypeComparer : IEqualityComparer
+		class GenericTypeComparer : IEqualityComparer
 		{
 			bool IEqualityComparer.Equals(object x, object y)
 			{
-				Type typeX = (Type)x;
-				Type typeY = (Type)y;
+				var typeX = (Type)x;
+				var typeY = (Type)y;
 
 				if (typeX.IsGenericParameter && typeY.IsGenericParameter)
 					return typeX.GenericParameterPosition == typeY.GenericParameterPosition;
@@ -183,6 +215,7 @@ namespace Xunit.Sdk
 				return typeX == typeY;
 			}
 
+			[SuppressMessage("Code Notifications", "RECS0083:Shows NotImplementedException throws in the quick task bar", Justification = "This class is not intended to be used in a hased container")]
 			int IEqualityComparer.GetHashCode(object obj)
 			{
 				throw new NotImplementedException();

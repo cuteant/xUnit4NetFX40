@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Abstractions;
 
 namespace Xunit.Sdk
 {
@@ -12,7 +13,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class XunitTestCaseRunner : TestCaseRunner<IXunitTestCase>
 	{
-		private readonly List<BeforeAfterTestAttribute> beforeAfterAttributes;
+		readonly List<BeforeAfterTestAttribute> beforeAfterAttributes;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.
@@ -33,7 +34,7 @@ namespace Xunit.Sdk
 															 IMessageBus messageBus,
 															 ExceptionAggregator aggregator,
 															 CancellationTokenSource cancellationTokenSource)
-			: base(testCase, messageBus, aggregator, cancellationTokenSource)
+				: base(testCase, messageBus, aggregator, cancellationTokenSource)
 		{
 			DisplayName = displayName;
 			SkipReason = skipReason;
@@ -42,18 +43,37 @@ namespace Xunit.Sdk
 			TestClass = TestCase.TestMethod.TestClass.Class.ToRuntimeType();
 			TestMethod = TestCase.Method.ToRuntimeMethod();
 
-			var parameterTypes = TestMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+			var parameters = TestMethod.GetParameters();
+			var parameterTypes = new Type[parameters.Length];
+			for (int i = 0; i < parameters.Length; i++)
+				parameterTypes[i] = parameters[i].ParameterType;
+
 			TestMethodArguments = Reflector.ConvertArguments(testMethodArguments, parameterTypes);
 
+			IEnumerable<Attribute> beforeAfterTestCollectionAttributes;
+			var collectionDefinition = testCase.TestMethod.TestClass.TestCollection.CollectionDefinition as IReflectionTypeInfo;
+
 #if NET_4_0_ABOVE
+			if (collectionDefinition != null)
+				beforeAfterTestCollectionAttributes = collectionDefinition.Type.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute));
+			else
+				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
+
 			beforeAfterAttributes =
-					TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute))
+					beforeAfterTestCollectionAttributes
+									 .Concat(TestClass.GetTypeInfo().GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
 									 .Concat(TestMethod.GetCustomAttributes(typeof(BeforeAfterTestAttribute)))
 									 .Cast<BeforeAfterTestAttribute>()
 									 .ToList();
 #else
+			if (collectionDefinition != null)
+				beforeAfterTestCollectionAttributes = Attribute.GetCustomAttributes(collectionDefinition.Type, typeof(BeforeAfterTestAttribute));
+			else
+				beforeAfterTestCollectionAttributes = Enumerable.Empty<Attribute>();
+
 			beforeAfterAttributes =
-					Attribute.GetCustomAttributes(TestClass, typeof(BeforeAfterTestAttribute))
+					beforeAfterTestCollectionAttributes
+									 .Concat(Attribute.GetCustomAttributes(TestClass, typeof(BeforeAfterTestAttribute)))
 									 .Concat(Attribute.GetCustomAttributes(TestMethod, typeof(BeforeAfterTestAttribute)))
 									 .Cast<BeforeAfterTestAttribute>()
 									 .ToList();
@@ -64,14 +84,14 @@ namespace Xunit.Sdk
 		/// Gets the list of <see cref="BeforeAfterTestAttribute"/>s that will be used for this test case.
 		/// </summary>
 #if NET_4_0_ABOVE
-
 		public IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
+				=> beforeAfterAttributes;
 #else
 		public IList<BeforeAfterTestAttribute> BeforeAfterAttributes
-#endif
 		{
 			get { return beforeAfterAttributes; }
 		}
+#endif
 
 		/// <summary>
 		/// Gets or sets the arguments passed to the test class constructor
@@ -105,9 +125,6 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestAsync()
-		{
-			var test = new XunitTest(TestCase, DisplayName);
-			return new XunitTestRunner(test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
-		}
+				=> new XunitTestRunner(new XunitTest(TestCase, DisplayName), MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, SkipReason, beforeAfterAttributes, new ExceptionAggregator(Aggregator), CancellationTokenSource).RunAsync();
 	}
 }

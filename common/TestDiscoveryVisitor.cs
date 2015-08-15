@@ -2,26 +2,25 @@
 using Xunit.Abstractions;
 
 #if XUNIT_CORE_DLL
-
 namespace Xunit.Sdk
 #else
 namespace Xunit
 #endif
 {
-	internal class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
-	{
-		public TestDiscoveryVisitor()
-		{
-			TestCases = new List<ITestCase>();
-		}
+    class TestDiscoveryVisitor : TestMessageVisitor<IDiscoveryCompleteMessage>
+    {
+        public TestDiscoveryVisitor()
+        {
+            TestCases = new List<ITestCase>();
+        }
 
-		public List<ITestCase> TestCases { get; private set; }
+        public List<ITestCase> TestCases { get; private set; }
 
-		protected override bool Visit(ITestCaseDiscoveryMessage discovery)
-		{
-			TestCases.Add(discovery.TestCase);
+        protected override bool Visit(ITestCaseDiscoveryMessage testCaseDiscovered)
+        {
+            TestCases.Add(testCaseDiscovered.TestCase);
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 }

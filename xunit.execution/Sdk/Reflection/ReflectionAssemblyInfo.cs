@@ -1,8 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit.Abstractions;
+
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
+using System;
+using System.IO;
+#endif
 
 namespace Xunit.Sdk
 {
@@ -26,19 +30,10 @@ namespace Xunit.Sdk
 		/// <param name="assemblyFileName">The assembly to be wrapped.</param>
 		public ReflectionAssemblyInfo(string assemblyFileName)
 		{
-#if WIN8_STORE
-			try
-			{
-				Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
-			}
-			catch (Exception)
-			{
-				Assembly = Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
-			}
-#elif WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
-			Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
+						Assembly = Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(assemblyFileName), Version = new Version(0, 0, 0, 0) });
 #elif ANDROID
-			Assembly = Assembly.Load(assemblyFileName);
+						Assembly = Assembly.Load(assemblyFileName);
 #else
 			Assembly = Assembly.Load(AssemblyName.GetAssemblyName(assemblyFileName));
 #endif
@@ -52,8 +47,8 @@ namespace Xunit.Sdk
 		{
 			get
 			{
-#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DNX451 || DNXCORE50
-				return Assembly.GetName().Name + ".dll"; // Return the short name on WPA81 as that's all that can be loaded
+#if WINDOWS_PHONE_APP || WINDOWS_PHONE || DOTNETCORE
+								return Assembly.GetName().Name + ".dll";  // Make sure we only use the short form
 #else
 				return Assembly.GetLocalCodeBase();
 #endif
@@ -71,14 +66,19 @@ namespace Xunit.Sdk
 
 #if NET_4_0_ABOVE
 			return Assembly.CustomAttributes
-#else
-			return Assembly.GetCustomAttributesData()
-#endif
-.Where(attr => attributeType.IsAssignableFrom(attr.Constructor.DeclaringType))
-										 .OrderBy(attr => attr.Constructor.DeclaringType.Name)
-										 .Select(Reflector.Wrap)
+										 .Where(attr => attributeType.GetTypeInfo().IsAssignableFrom(attr.AttributeType.GetTypeInfo()))
+										 .OrderBy(attr => attr.AttributeType.Name)
+										 .Select(a => Reflector.Wrap(a))
 										 .Cast<IAttributeInfo>()
 										 .ToList();
+#else
+			return Assembly.GetCustomAttributesData()
+										 .Where(attr => attributeType.IsAssignableFrom(attr.Constructor.DeclaringType))
+										 .OrderBy(attr => attr.Constructor.DeclaringType.Name)
+										 .Select(a => Reflector.Wrap(a))
+										 .Cast<IAttributeInfo>()
+										 .ToList();
+#endif
 		}
 
 		/// <inheritdoc/>
@@ -99,11 +99,11 @@ namespace Xunit.Sdk
 
 			try
 			{
-				return selector.Select(Reflector.Wrap).Cast<ITypeInfo>();
+				return selector.Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
 			}
 			catch (ReflectionTypeLoadException ex)
 			{
-				return ex.Types.Select(Reflector.Wrap).Cast<ITypeInfo>();
+				return ex.Types.Select(t => Reflector.Wrap(t)).Cast<ITypeInfo>();
 			}
 		}
 

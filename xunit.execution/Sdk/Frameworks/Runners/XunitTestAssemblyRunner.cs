@@ -13,12 +13,15 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class XunitTestAssemblyRunner : TestAssemblyRunner<IXunitTestCase>
 	{
-		private IAttributeInfo collectionBehaviorAttribute;
-		private bool disableParallelization;
-		private bool initialized;
-		private int maxParallelThreads;
-		private SynchronizationContext originalSyncContext;
-		private MaxConcurrencySyncContext syncContext;
+		IAttributeInfo collectionBehaviorAttribute;
+		bool disableParallelization;
+		bool initialized;
+		int maxParallelThreads;
+		SynchronizationContext originalSyncContext;
+
+#if !DOTNETCORE
+		MaxConcurrencySyncContext syncContext;
+#endif
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestAssemblyRunner"/> class.
@@ -33,8 +36,10 @@ namespace Xunit.Sdk
 																	 IMessageSink diagnosticMessageSink,
 																	 IMessageSink executionMessageSink,
 																	 ITestFrameworkExecutionOptions executionOptions)
-			: base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions) { }
+				: base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
+		{ }
 
+#if !DOTNETCORE
 		/// <inheritdoc/>
 		public override void Dispose()
 		{
@@ -42,12 +47,11 @@ namespace Xunit.Sdk
 			if (disposable != null)
 				disposable.Dispose();
 		}
+#endif
 
 		/// <inheritdoc/>
 		protected override string GetTestFrameworkDisplayName()
-		{
-			return XunitTestFrameworkDiscoverer.DisplayName;
-		}
+				=> XunitTestFrameworkDiscoverer.DisplayName;
 
 		/// <inheritdoc/>
 		protected override string GetTestFrameworkEnvironment()
@@ -56,26 +60,24 @@ namespace Xunit.Sdk
 
 			var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
 
-			return String.Format("{0} [{1}, {2}{3}]",
-													 base.GetTestFrameworkEnvironment(),
-													 testCollectionFactory.DisplayName,
-													 disableParallelization ? "non-parallel" : "parallel",
-													 maxParallelThreads > 0 ? String.Format(" ({0} threads)", maxParallelThreads) : "");
+			return $"{base.GetTestFrameworkEnvironment()} [{testCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}{(maxParallelThreads > 0 ? $" ({maxParallelThreads} threads)" : "")}]";
 		}
 
 		/// <summary>
 		/// Gets the synchronization context used when potentially running tests in parallel.
 		/// If <paramref name="maxParallelThreads"/> is greater than 0, it creates
-		/// and uses an instance of <see cref="MaxConcurrencySyncContext"/>.
+		/// and uses an instance of <see cref="T:Xunit.Sdk.MaxConcurrencySyncContext"/>.
 		/// </summary>
 		/// <param name="maxParallelThreads">The maximum number of parallel threads.</param>
 		protected virtual void SetupSyncContext(int maxParallelThreads)
 		{
+#if !DOTNETCORE
 			if (maxParallelThreads < 1)
 				maxParallelThreads = Environment.ProcessorCount;
 
 			syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
 			SetSynchronizationContext(syncContext);
+#endif
 		}
 
 		/// <summary>
@@ -110,14 +112,14 @@ namespace Xunit.Sdk
 					else
 					{
 						var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test case orderer", args[0], args[1]));
+						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for assembly-level test case orderer"));
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test case orderer '{args[0]}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
 				}
 			}
 
@@ -132,14 +134,14 @@ namespace Xunit.Sdk
 					else
 					{
 						var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test collection orderer", args[0], args[1]));
+						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for assembly-level test collection orderer"));
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.StackTrace));
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Assembly-level test collection orderer '{args[0]}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
 				}
 			}
 
@@ -150,22 +152,14 @@ namespace Xunit.Sdk
 		protected override Task AfterTestAssemblyStartingAsync()
 		{
 			Initialize();
-#if NET_4_0_ABOVE
-			return Task.FromResult(0);
-#else
-			return TaskEx.FromResult(0);
-#endif
+			return CommonTasks.Completed;
 		}
 
 		/// <inheritdoc/>
 		protected override Task BeforeTestAssemblyFinishedAsync()
 		{
 			SetSynchronizationContext(originalSyncContext);
-#if NET_4_0_ABOVE
-			return Task.FromResult(0);
-#else
-			return TaskEx.FromResult(0);
-#endif
+			return CommonTasks.Completed;
 		}
 
 		/// <inheritdoc/>
@@ -178,23 +172,28 @@ namespace Xunit.Sdk
 
 			SetupSyncContext(maxParallelThreads);
 
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-
+			Func<Func<Task<RunSummary>>, Task<RunSummary>> taskRunner;
 #if NET_4_0_ABOVE
-			var tasks = OrderTestCollections().Select(
-					collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
-																																					 cancellationTokenSource.Token,
-																																					 TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler,
-																																					 scheduler).Unwrap()
-			).ToArray();
+			if (SynchronizationContext.Current != null)
+			{
+				var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+				taskRunner = code => Task.Factory.StartNew(code, cancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap();
+			}
+			else
+				taskRunner = code => Task.Run(code, cancellationTokenSource.Token);
 #else
-			var tasks = OrderTestCollections().Select(
-					collection => Task.Factory.StartNew(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource),
-																																					 cancellationTokenSource.Token,
-																																					 TaskCreationOptions.None,
-																																					 scheduler).Unwrap()
-			).ToArray();
+			if (SynchronizationContext.Current != null)
+			{
+				var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+				taskRunner = code => Task.Factory.StartNew(code, cancellationTokenSource.Token, TaskCreationOptions.None, scheduler).Unwrap();
+			}
+			else
+				taskRunner = code => TaskEx.Run(code, cancellationTokenSource.Token);
 #endif
+
+			var tasks = OrderTestCollections().Select(
+					collection => taskRunner(() => RunTestCollectionAsync(messageBus, collection.Item1, collection.Item2, cancellationTokenSource))
+			).ToArray();
 
 			var summaries = new List<RunSummary>();
 
@@ -217,14 +216,10 @@ namespace Xunit.Sdk
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
-		{
-			return new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
-		}
+				=> new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
 
 		[SecuritySafeCritical]
-		private static void SetSynchronizationContext(SynchronizationContext context)
-		{
-			SynchronizationContext.SetSynchronizationContext(context);
-		}
+		static void SetSynchronizationContext(SynchronizationContext context)
+				=> SynchronizationContext.SetSynchronizationContext(context);
 	}
 }

@@ -15,7 +15,6 @@ namespace Xunit
 
 		/// <summary>确定 Type 的实例是否可以从指定 Type 的实例分配。</summary>
 		/// <param name="type"></param>
-		/// <param name="c"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -127,7 +126,6 @@ namespace Xunit
 
 		/// <summary>确定 Type 的实例是否可以从指定 Type 的实例分配。</summary>
 		/// <param name="type"></param>
-		/// <param name="c"></param>
 		/// <returns></returns>
 #if NET_4_0_ABOVE
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

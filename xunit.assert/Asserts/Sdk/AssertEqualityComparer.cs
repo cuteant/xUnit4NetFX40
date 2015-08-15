@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-
 #if NET_4_0_ABOVE
-
 using System.Reflection;
-
 #endif
 
 namespace Xunit.Sdk
@@ -15,17 +13,17 @@ namespace Xunit.Sdk
 	/// Default implementation of <see cref="IEqualityComparer{T}"/> used by the xUnit.net equality assertions.
 	/// </summary>
 	/// <typeparam name="T">The type that is being compared.</typeparam>
-	internal class AssertEqualityComparer<T> : IEqualityComparer<T>
+	class AssertEqualityComparer<T> : IEqualityComparer<T>
 	{
-		private static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
+		static readonly IEqualityComparer DefaultInnerComparer = new AssertEqualityComparerAdapter<object>(new AssertEqualityComparer<object>());
 #if NET_4_0_ABOVE
 		private static readonly TypeInfo NullableTypeInfo = typeof(Nullable<>).GetTypeInfo();
 #else
 		private static readonly Type NullableTypeInfo = typeof(Nullable<>);
 #endif
 
-		private readonly Func<IEqualityComparer> innerComparerFactory;
-		private readonly bool skipTypeCheck;
+		readonly Func<IEqualityComparer> innerComparerFactory;
+		readonly bool skipTypeCheck;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AssertEqualityComparer{T}" /> class.
@@ -95,7 +93,7 @@ namespace Xunit.Sdk
 			return Object.Equals(x, y);
 		}
 
-		private bool? CheckIfEnumerablesAreEqual(T x, T y)
+		bool? CheckIfEnumerablesAreEqual(T x, T y)
 		{
 			var enumerableX = x as IEnumerable;
 			var enumerableY = y as IEnumerable;
@@ -133,7 +131,7 @@ namespace Xunit.Sdk
 			}
 		}
 
-		private bool? CheckIfDictionariesAreEqual(T x, T y)
+		bool? CheckIfDictionariesAreEqual(T x, T y)
 		{
 			var dictionaryX = x as IDictionary;
 			var dictionaryY = y as IDictionary;
@@ -165,6 +163,7 @@ namespace Xunit.Sdk
 		}
 
 		/// <inheritdoc/>
+		[SuppressMessage("Code Notifications", "RECS0083:Shows NotImplementedException throws in the quick task bar", Justification = "This class is not intended to be used in a hased container")]
 		public int GetHashCode(T obj)
 		{
 			throw new NotImplementedException();

@@ -10,15 +10,15 @@ namespace Xunit.Sdk
 	/// <summary>
 	/// Formats arguments for display in theories.
 	/// </summary>
-	internal static class ArgumentFormatter
+	static class ArgumentFormatter
 	{
-		private const int MAX_DEPTH = 3;
-		private const int MAX_ENUMERABLE_LENGTH = 5;
-		private const int MAX_OBJECT_PARAMETER_COUNT = 5;
-		private const int MAX_STRING_LENGTH = 50;
+		const int MAX_DEPTH = 3;
+		const int MAX_ENUMERABLE_LENGTH = 5;
+		const int MAX_OBJECT_PARAMETER_COUNT = 5;
+		const int MAX_STRING_LENGTH = 50;
 
-		private static readonly object[] EmptyObjects = new object[0];
-		private static readonly Type[] EmptyTypes = new Type[0];
+		static readonly object[] EmptyObjects = new object[0];
+		static readonly Type[] EmptyTypes = new Type[0];
 
 #if NET_4_0_ABOVE
 		// List of system types => C# type names
@@ -72,36 +72,34 @@ namespace Xunit.Sdk
 			return Format(value, 1);
 		}
 
-		private static string Format(object value, int depth)
+		static string Format(object value, int depth)
 		{
 			if (value == null)
 				return "null";
 
 			var valueAsType = value as Type;
 			if (valueAsType != null)
-			{
-				return String.Format("typeof({0})", FormatTypeName(valueAsType));
-			}
+				return string.Format("typeof({0})", new object[] { FormatTypeName(valueAsType) });
 
 			if (value is char)
 			{
 				var charValue = (char)value;
 				if (char.IsLetterOrDigit(charValue) || char.IsPunctuation(charValue) || char.IsSymbol(charValue) || charValue == ' ')
-					return String.Format("'{0}'", value);
+					return string.Format("'{0}'", new object[] { value });
 
-				return String.Format("0x{0:x4}", (int)charValue);
+				return string.Format("0x{0:x4}", new object[] { (int)charValue });
 			}
 
 			if (value is DateTime || value is DateTimeOffset)
-				return String.Format("{0:o}", value);
+				return string.Format("{0:o}", new object[] { value });
 
 			var stringParameter = value as string;
 			if (stringParameter != null)
 			{
 				if (stringParameter.Length > MAX_STRING_LENGTH)
-					return String.Format("\"{0}\"...", stringParameter.Substring(0, MAX_STRING_LENGTH));
+					return string.Format("\"{0}\"...", new object[] { stringParameter.Substring(0, MAX_STRING_LENGTH) });
 
-				return String.Format("\"{0}\"", stringParameter);
+				return string.Format("\"{0}\"", new object[] { stringParameter });
 			}
 
 			var enumerable = value as IEnumerable;
@@ -113,7 +111,7 @@ namespace Xunit.Sdk
 				return Convert.ToString(value, CultureInfo.CurrentCulture);
 
 #if NEW_REFLECTION
-			var toString = type.GetRuntimeMethod("ToString", EmptyTypes);
+						var toString = type.GetRuntimeMethod("ToString", EmptyTypes);
 #else
 			var toString = type.GetMethod("ToString", EmptyTypes);
 #endif
@@ -124,54 +122,54 @@ namespace Xunit.Sdk
 			return FormatComplexValue(value, depth, type);
 		}
 
-		private static string FormatComplexValue(object value, int depth, Type type)
+		static string FormatComplexValue(object value, int depth, Type type)
 		{
 			if (depth == MAX_DEPTH)
-				return String.Format("{0} {{ ... }}", type.Name);
+				return string.Format("{0} {{ ... }}", new object[] { type.Name });
 
 			var fields = type.GetRuntimeFieldsEx()
 											 .Where(f => f.IsPublic && !f.IsStatic)
 											 .Select(f => new { name = f.Name, value = WrapAndGetFormattedValue(() => f.GetValue(value), depth) });
 			var properties = type.GetRuntimePropertiesEx()
 #if NET_4_0_ABOVE
-.Where(p => p.GetMethod != null && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
-.Select(p => new { name = p.Name, value = WrapAndGetFormattedValue(() => p.GetValue(value), depth) });
+											 .Where(p => p.GetMethod != null && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
+											 .Select(p => new { name = p.Name, value = WrapAndGetFormattedValue(() => p.GetValue(value), depth) });
 #else
-.Where(p => p.GetGetMethod(true) != null && p.GetGetMethod(true).IsPublic && !p.GetGetMethod(true).IsStatic)
-.Select(p => new { name = p.Name, value = WrapAndGetFormattedValue(() => p.GetValue(value, null), depth) });
+											 .Where(p => p.GetGetMethod(true) != null && p.GetGetMethod(true).IsPublic && !p.GetGetMethod(true).IsStatic)
+											 .Select(p => new { name = p.Name, value = WrapAndGetFormattedValue(() => p.GetValue(value, null), depth) });
 #endif
 			var parameters = fields.Concat(properties)
-														 .OrderBy(p => p.name)
-														 .Take(MAX_OBJECT_PARAMETER_COUNT + 1)
-														 .ToList();
+																	 .OrderBy(p => p.name)
+																	 .Take(MAX_OBJECT_PARAMETER_COUNT + 1)
+																	 .ToList();
 
 			if (parameters.Count == 0)
-				return String.Format("{0} {{ }}", type.Name);
+				return string.Format("{0} {{ }}", new object[] { type.Name });
 
-			var formattedParameters = String.Join(", ", parameters.Take(MAX_OBJECT_PARAMETER_COUNT)
-																														.Select(p => String.Format("{0} = {1}", p.name, p.value)));
+			var formattedParameters = string.Join(", ", parameters.Take(MAX_OBJECT_PARAMETER_COUNT)
+																														.Select(p => string.Format("{0} = {1}", new object[] { p.name, p.value })));
 
 			if (parameters.Count > MAX_OBJECT_PARAMETER_COUNT)
 				formattedParameters += ", ...";
 
-			return String.Format("{0} {{ {1} }}", type.Name, formattedParameters);
+			return string.Format("{0} {{ {1} }}", new object[] { type.Name, formattedParameters });
 		}
 
-		private static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
+		static string FormatEnumerable(IEnumerable<object> enumerableValues, int depth)
 		{
 			if (depth == MAX_DEPTH)
 				return "[...]";
 
 			var values = enumerableValues.Take(MAX_ENUMERABLE_LENGTH + 1).ToList();
-			var printedValues = String.Join(", ", values.Take(MAX_ENUMERABLE_LENGTH).Select(x => Format(x, depth + 1)));
+			var printedValues = string.Join(", ", values.Take(MAX_ENUMERABLE_LENGTH).Select(x => Format(x, depth + 1)));
 
 			if (values.Count > MAX_ENUMERABLE_LENGTH)
 				printedValues += ", ...";
 
-			return String.Format("[{0}]", printedValues);
+			return string.Format("[{0}]", new object[] { printedValues });
 		}
 
-		private static string FormatTypeName(Type type)
+		static string FormatTypeName(Type type)
 		{
 #if NET_4_0_ABOVE
 			var typeInfo = type.GetTypeInfo();
@@ -181,7 +179,7 @@ namespace Xunit.Sdk
 			while (typeInfo.IsArray)
 			{
 				var rank = typeInfo.GetArrayRank();
-				arraySuffix += string.Format("[{0}]", new String(',', rank - 1));
+				arraySuffix += string.Format("[{0}]", new object[] { new string(',', rank - 1) });
 				typeInfo = typeInfo.GetElementType().GetTypeInfo();
 			}
 
@@ -197,13 +195,13 @@ namespace Xunit.Sdk
 				name = name.Substring(0, tickIdx);
 
 			if (typeInfo.IsGenericTypeDefinition)
-				name = String.Format("{0}<{1}>", name, new string(',', typeInfo.GenericTypeParameters.Length - 1));
+				name = string.Format("{0}<{1}>", new object[] { name, new string(',', typeInfo.GenericTypeParameters.Length - 1) });
 			else if (typeInfo.IsGenericType)
 			{
 				if (typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>))
 					name = FormatTypeName(typeInfo.GenericTypeArguments[0]) + "?";
 				else
-					name = String.Format("{0}<{1}>", name, string.Join(", ", typeInfo.GenericTypeArguments.Select(FormatTypeName)));
+					name = string.Format("{0}<{1}>", new object[] { name, string.Join(", ", typeInfo.GenericTypeArguments.Select(FormatTypeName)) });
 			}
 
 			return name + arraySuffix;
@@ -243,7 +241,7 @@ namespace Xunit.Sdk
 #endif
 		}
 
-		private static string WrapAndGetFormattedValue(Func<object> getter, int depth)
+		static string WrapAndGetFormattedValue(Func<object> getter, int depth)
 		{
 			try
 			{
@@ -251,11 +249,11 @@ namespace Xunit.Sdk
 			}
 			catch (Exception ex)
 			{
-				return String.Format("(throws {0})", UnwrapException(ex).GetType().Name);
+				return string.Format("(throws {0})", new object[] { UnwrapException(ex).GetType().Name });
 			}
 		}
 
-		private static Exception UnwrapException(Exception ex)
+		static Exception UnwrapException(Exception ex)
 		{
 			while (true)
 			{

@@ -16,7 +16,7 @@ namespace Xunit.Sdk
 		/// <summary>
 		/// Gets the display name of the xUnit.net v2 test framework.
 		/// </summary>
-		public static readonly string DisplayName = String.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", typeof(XunitTestFrameworkDiscoverer).GetAssembly().GetName().Version);
+		public static readonly string DisplayName = string.Format(CultureInfo.InvariantCulture, "xUnit.net {0}", new object[] { typeof(XunitTestFrameworkDiscoverer).GetAssembly().GetName().Version });
 
 		readonly Dictionary<Type, IXunitTestCaseDiscoverer> discovererCache = new Dictionary<Type, IXunitTestCaseDiscoverer>();
 
@@ -31,22 +31,19 @@ namespace Xunit.Sdk
 																				ISourceInformationProvider sourceProvider,
 																				IMessageSink diagnosticMessageSink,
 																				IXunitTestCollectionFactory collectionFactory = null)
-			: base(assemblyInfo, sourceProvider, diagnosticMessageSink)
+				: base(assemblyInfo, sourceProvider, diagnosticMessageSink)
 		{
 			var collectionBehaviorAttribute = assemblyInfo.GetCustomAttributes(typeof(CollectionBehaviorAttribute)).SingleOrDefault();
-			var disableParallelization = collectionBehaviorAttribute == null ? false : collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
+			var disableParallelization = collectionBehaviorAttribute != null && collectionBehaviorAttribute.GetNamedArgument<bool>("DisableTestParallelization");
 
 			string config = null;
-#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DNXCORE50
+#if !WINDOWS_PHONE_APP && !WINDOWS_PHONE && !DOTNETCORE
 			config = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
 #endif
 			var testAssembly = new TestAssembly(assemblyInfo, config);
 
 			TestCollectionFactory = collectionFactory ?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(diagnosticMessageSink, collectionBehaviorAttribute, testAssembly);
-			TestFrameworkDisplayName = String.Format("{0} [{1}, {2}]",
-																							 DisplayName,
-																							 TestCollectionFactory.DisplayName,
-																							 disableParallelization ? "non-parallel" : "parallel");
+			TestFrameworkDisplayName = $"{DisplayName} [{TestCollectionFactory.DisplayName}, {(disableParallelization ? "non-parallel" : "parallel")}]";
 		}
 
 		/// <summary>
@@ -70,10 +67,10 @@ namespace Xunit.Sdk
 		/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
 		protected virtual bool FindTestsForMethod(ITestMethod testMethod, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).ToList();
+			var factAttributes = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).CastOrToList();
 			if (factAttributes.Count > 1)
 			{
-				var message = string.Format("Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.Class.Name, testMethod.Method.Name);
+				var message = $"Test method '{testMethod.TestClass.Class.Name}.{testMethod.Method.Name}' has multiple [Fact]-derived attributes";
 				var testCase = new ExecutionErrorTestCase(DiagnosticMessageSink, TestMethodDisplay.ClassAndMethod, testMethod, message);
 				return ReportDiscoveredTestCase(testCase, includeSourceInformation, messageBus);
 			}
@@ -105,7 +102,7 @@ namespace Xunit.Sdk
 		/// <inheritdoc/>
 		protected override bool FindTestsForType(ITestClass testClass, bool includeSourceInformation, IMessageBus messageBus, ITestFrameworkDiscoveryOptions discoveryOptions)
 		{
-			foreach (var method in testClass.Class.GetMethods(includePrivateMethods: true))
+			foreach (var method in testClass.Class.GetMethods(true))
 			{
 				var testMethod = new TestMethod(testClass, method);
 				if (!FindTestsForMethod(testMethod, includeSourceInformation, messageBus, discoveryOptions))
@@ -134,7 +131,7 @@ namespace Xunit.Sdk
 				catch (Exception ex)
 				{
 					result = null;
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Discoverer type '{0}' could not be created or does not implement IXunitTestCaseDiscoverer: {1}", discovererType.FullName, ex));
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Discoverer type '{discovererType.FullName}' could not be created or does not implement IXunitTestCaseDiscoverer: {ex}"));
 				}
 
 				discovererCache[discovererType] = result;

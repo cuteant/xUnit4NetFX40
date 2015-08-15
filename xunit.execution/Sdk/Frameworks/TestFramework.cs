@@ -16,7 +16,7 @@ namespace Xunit.Sdk
 		/// Initializes a new instance of the <see cref="TestFramework"/> class.
 		/// </summary>
 		/// <param name="diagnosticMessageSink">The message sink used to send diagnostic messages</param>
-		public TestFramework(IMessageSink diagnosticMessageSink)
+		protected TestFramework(IMessageSink diagnosticMessageSink)
 		{
 			Guard.ArgumentNotNull("diagnosticMessageSink", diagnosticMessageSink);
 
@@ -85,7 +85,7 @@ namespace Xunit.Sdk
 			return executor;
 		}
 
-		private class NullSourceInformationProvider : ISourceInformationProvider
+		class NullSourceInformationProvider : ISourceInformationProvider
 		{
 			public static readonly NullSourceInformationProvider Instance = new NullSourceInformationProvider();
 
@@ -94,9 +94,7 @@ namespace Xunit.Sdk
 				return new SourceInformation();
 			}
 
-			public void Dispose()
-			{
-			}
+			public void Dispose() { }
 		}
 	}
 }

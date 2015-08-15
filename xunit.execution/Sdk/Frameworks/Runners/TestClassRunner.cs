@@ -28,14 +28,14 @@ namespace Xunit.Sdk
 		/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-		public TestClassRunner(ITestClass testClass,
-													 IReflectionTypeInfo @class,
-													 IEnumerable<TTestCase> testCases,
-													 IMessageSink diagnosticMessageSink,
-													 IMessageBus messageBus,
-													 ITestCaseOrderer testCaseOrderer,
-													 ExceptionAggregator aggregator,
-													 CancellationTokenSource cancellationTokenSource)
+		protected TestClassRunner(ITestClass testClass,
+															IReflectionTypeInfo @class,
+															IEnumerable<TTestCase> testCases,
+															IMessageSink diagnosticMessageSink,
+															IMessageBus messageBus,
+															ITestCaseOrderer testCaseOrderer,
+															ExceptionAggregator aggregator,
+															CancellationTokenSource cancellationTokenSource)
 		{
 			TestClass = testClass;
 			Class = @class;
@@ -133,42 +133,30 @@ namespace Xunit.Sdk
 		/// Gets the message to be used when the constructor is missing arguments.
 		/// </summary>
 #if NET_4_0_ABOVE
-
 		protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
+				=> $"The following constructor parameters did not have matching arguments: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 #else
 
 		protected virtual string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IList<Tuple<int, ParameterInfo>> unusedArguments)
-#endif
 		{
 			var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
 			return String.Format("The following constructor parameters did not have matching arguments: {0}", argText);
 		}
+#endif
 
 		/// <summary>
 		/// This method is called just after <see cref="ITestClassStarting"/> is sent, but before any test methods are run.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task AfterTestClassStartingAsync()
-		{
-#if NET_4_0_ABOVE
-			return Task.FromResult(0);
-#else
-			return TaskEx.FromResult(0);
-#endif
-		}
+				=> CommonTasks.Completed;
 
 		/// <summary>
 		/// This method is called just before <see cref="ITestClassFinished"/> is sent.
 		/// This method should NEVER throw; any exceptions should be placed into the <see cref="Aggregator"/>.
 		/// </summary>
 		protected virtual Task BeforeTestClassFinishedAsync()
-		{
-#if NET_4_0_ABOVE
-			return Task.FromResult(0);
-#else
-			return TaskEx.FromResult(0);
-#endif
-		}
+				=> CommonTasks.Completed;
 
 		/// <summary>
 		/// Runs the tests in the test class.
@@ -219,7 +207,7 @@ namespace Xunit.Sdk
 			catch (Exception ex)
 			{
 				var innerEx = ex.Unwrap();
-				DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Test case orderer '{0}' threw '{1}' during ordering: {2}", TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.StackTrace));
+				DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Test case orderer '{TestCaseOrderer.GetType().FullName}' threw '{innerEx.GetType().FullName}' during ordering: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
 				orderedTestCases = TestCases.ToList();
 			}
 

@@ -29,6 +29,9 @@ namespace Nito.AsyncEx.Internal.PlatformEnlightenment
 			PrepForRemoting = ReflectionHelper.Compile<Action<Exception>>(prepForRemoting, exception);
 		}
 
+		/// <summary>PrepareForRethrow</summary>
+		/// <param name="exception"></param>
+		/// <returns></returns>
 		public static Exception PrepareForRethrow(Exception exception)
 		{
 			if (CaptureAndThrow != null)

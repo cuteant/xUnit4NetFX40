@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,9 +13,9 @@ namespace Xunit.Sdk
 	public class XunitTestRunner : TestRunner<IXunitTestCase>
 	{
 #if NET_4_0_ABOVE
-		private readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		readonly IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes;
 #else
-		private readonly IList<BeforeAfterTestAttribute> beforeAfterAttributes;
+		readonly IList<BeforeAfterTestAttribute> beforeAfterAttributes;
 #endif
 
 		/// <summary>
@@ -40,13 +39,13 @@ namespace Xunit.Sdk
 													 object[] testMethodArguments,
 													 string skipReason,
 #if NET_4_0_ABOVE
- IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
+													 IReadOnlyList<BeforeAfterTestAttribute> beforeAfterAttributes,
 #else
- IList<BeforeAfterTestAttribute> beforeAfterAttributes,
+													 IList<BeforeAfterTestAttribute> beforeAfterAttributes,
 #endif
- ExceptionAggregator aggregator,
+													 ExceptionAggregator aggregator,
 													 CancellationTokenSource cancellationTokenSource)
-			: base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
+				: base(test, messageBus, testClass, constructorArguments, testMethod, testMethodArguments, skipReason, aggregator, cancellationTokenSource)
 		{
 			this.beforeAfterAttributes = beforeAfterAttributes;
 		}
@@ -55,21 +54,26 @@ namespace Xunit.Sdk
 		/// Gets the list of <see cref="BeforeAfterTestAttribute"/>s for this test.
 		/// </summary>
 #if NET_4_0_ABOVE
-
 		protected IReadOnlyList<BeforeAfterTestAttribute> BeforeAfterAttributes
+				=> beforeAfterAttributes;
 #else
-
 		protected IList<BeforeAfterTestAttribute> BeforeAfterAttributes
+				=> beforeAfterAttributes;
 #endif
-		{
-			get { return beforeAfterAttributes; }
-		}
 
 		/// <inheritdoc/>
 		protected override async Task<Tuple<decimal, string>> InvokeTestAsync(ExceptionAggregator aggregator)
 		{
-			var output = String.Empty;
-			var testOutputHelper = ConstructorArguments.OfType<TestOutputHelper>().FirstOrDefault();
+			var output = string.Empty;
+
+			TestOutputHelper testOutputHelper = null;
+			foreach (object obj in ConstructorArguments)
+			{
+				testOutputHelper = obj as TestOutputHelper;
+				if (testOutputHelper != null)
+					break;
+			}
+
 			if (testOutputHelper != null)
 				testOutputHelper.Initialize(MessageBus, Test);
 
@@ -89,9 +93,7 @@ namespace Xunit.Sdk
 		/// </summary>
 		/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 		/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-		protected virtual async Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator)
-		{
-			return await new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, BeforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
-		}
+		protected virtual Task<decimal> InvokeTestMethodAsync(ExceptionAggregator aggregator)
+				=> new XunitTestInvoker(Test, MessageBus, TestClass, ConstructorArguments, TestMethod, TestMethodArguments, BeforeAfterAttributes, aggregator, CancellationTokenSource).RunAsync();
 	}
 }

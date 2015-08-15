@@ -13,7 +13,7 @@ namespace Xunit.Sdk
 	/// </summary>
 	public class XunitTestClassRunner : TestClassRunner<IXunitTestCase>
 	{
-		private readonly IDictionary<Type, object> collectionFixtureMappings;
+		readonly IDictionary<Type, object> collectionFixtureMappings;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="XunitTestClassRunner"/> class.
@@ -36,43 +36,64 @@ namespace Xunit.Sdk
 																ExceptionAggregator aggregator,
 																CancellationTokenSource cancellationTokenSource,
 																IDictionary<Type, object> collectionFixtureMappings)
-			: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+				: base(testClass, @class, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			this.collectionFixtureMappings = collectionFixtureMappings;
-
-			ClassFixtureMappings = new Dictionary<Type, object>();
 		}
 
 		/// <summary>
 		/// Gets the fixture mappings that were created during <see cref="AfterTestClassStartingAsync"/>.
 		/// </summary>
-		protected Dictionary<Type, object> ClassFixtureMappings { get; set; }
+		protected Dictionary<Type, object> ClassFixtureMappings { get; set; } = new Dictionary<Type, object>();
 
-		private void CreateFixture(Type fixtureGenericInterfaceType)
+		/// <summary>
+		/// Creates the instance of a class fixture type to be used by the test class. If the fixture can be created,
+		/// it should be placed into the <see cref="ClassFixtureMappings"/> dictionary; if it cannot, then the method
+		/// should record the error by calling <code>Aggregator.Add</code>.
+		/// </summary>
+		/// <param name="fixtureType">The type of the fixture to be created</param>
+		protected virtual void CreateClassFixture(Type fixtureType)
 		{
-#if NET_4_0_ABOVE
-			var fixtureType = fixtureGenericInterfaceType.GetTypeInfo().GenericTypeArguments.Single();
-#else
-			var typeArgs = fixtureGenericInterfaceType.IsGenericType && !fixtureGenericInterfaceType.IsGenericTypeDefinition
-										? fixtureGenericInterfaceType.GetGenericArguments()
-										: Type.EmptyTypes;
-			var fixtureType = typeArgs.Single();
-#endif
-			Aggregator.Run(() => ClassFixtureMappings[fixtureType] = Activator.CreateInstance(fixtureType));
+			var ctors = fixtureType.GetConstructorsEx()
+														 .Where(ci => !ci.IsStatic && ci.IsPublic)
+														 .ToList();
+
+			if (ctors.Count != 1)
+			{
+				Aggregator.Add(new TestClassException($"Class fixture type '{fixtureType.FullName}' may only define a single public constructor."));
+				return;
+			}
+
+			var ctor = ctors[0];
+			var missingParameters = new List<ParameterInfo>();
+			var ctorArgs = ctor.GetParameters().Select(p =>
+			{
+				object arg;
+				if (!collectionFixtureMappings.TryGetValue(p.ParameterType, out arg))
+					missingParameters.Add(p);
+				return arg;
+			}).ToArray();
+
+			if (missingParameters.Count > 0)
+				Aggregator.Add(new TestClassException(
+						$"Class fixture type '{fixtureType.FullName}' had one or more unresolved constructor arguments: {string.Join(", ", missingParameters.Select(p => $"{p.ParameterType.Name} {p.Name}"))}"
+				));
+			else
+				Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
 		}
 
 		/// <inheritdoc/>
 #if NET_4_0_ABOVE
-
 		protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments)
+				=> $"The following constructor parameters did not have matching fixture data: {string.Join(", ", unusedArguments.Select(arg => $"{arg.Item2.ParameterType.Name} {arg.Item2.Name}"))}";
 #else
 
 		protected override string FormatConstructorArgsMissingMessage(ConstructorInfo constructor, IList<Tuple<int, ParameterInfo>> unusedArguments)
-#endif
 		{
 			var argText = String.Join(", ", unusedArguments.Select(arg => String.Format("{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)));
 			return String.Format("The following constructor parameters did not have matching fixture data: {0}", argText);
 		}
+#endif
 
 		/// <inheritdoc/>
 		protected override Task AfterTestClassStartingAsync()
@@ -88,14 +109,14 @@ namespace Xunit.Sdk
 					else
 					{
 						var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-						DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for class-level test case orderer on test class '{2}'", args[0], args[1], TestClass.Class.Name));
+						DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Could not find type '{args[0]}' in {args[1]} for class-level test case orderer on test class '{TestClass.Class.Name}'"));
 					}
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 					var args = ordererAttribute.GetConstructorArguments().Cast<string>().ToList();
-					DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}", args[0], TestClass.Class.Name, innerEx.GetType().FullName, innerEx.StackTrace));
+					DiagnosticMessageSink.OnMessage(new DiagnosticMessage($"Class-level test case orderer '{args[0]}' for test class '{TestClass.Class.Name}' threw '{innerEx.GetType().FullName}' during construction: {innerEx.Message}{Environment.NewLine}{innerEx.StackTrace}"));
 				}
 			}
 
@@ -105,33 +126,31 @@ namespace Xunit.Sdk
 				Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
 			foreach (var interfaceType in testClassTypeInfo.ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-				CreateFixture(interfaceType);
+				CreateClassFixture(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
 
 			if (TestClass.TestCollection.CollectionDefinition != null)
 			{
 				var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
 				foreach (var interfaceType in declarationType.GetTypeInfo().ImplementedInterfaces.Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-					CreateFixture(interfaceType);
+					CreateClassFixture(interfaceType.GetTypeInfo().GenericTypeArguments.Single());
 			}
-
-			return Task.FromResult(0);
 #else
 			var testClassTypeInfo = Class.Type;
 			if (testClassTypeInfo.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
 				Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
 			foreach (var interfaceType in testClassTypeInfo.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-				CreateFixture(interfaceType);
+				CreateClassFixture(interfaceType.GetGenericArgumentsEx().Single());
 
 			if (TestClass.TestCollection.CollectionDefinition != null)
 			{
 				var declarationType = ((IReflectionTypeInfo)TestClass.TestCollection.CollectionDefinition).Type;
 				foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-					CreateFixture(interfaceType);
+					CreateClassFixture(interfaceType.GetGenericArgumentsEx().Single());
 			}
-
-			return TaskEx.FromResult(0);
 #endif
+
+			return CommonTasks.Completed;
 		}
 
 		/// <inheritdoc/>
@@ -140,18 +159,12 @@ namespace Xunit.Sdk
 			foreach (var fixture in ClassFixtureMappings.Values.OfType<IDisposable>())
 				Aggregator.Run(fixture.Dispose);
 
-#if NET_4_0_ABOVE
-			return Task.FromResult(0);
-#else
-			return TaskEx.FromResult(0);
-#endif
+			return CommonTasks.Completed;
 		}
 
 		/// <inheritdoc/>
 		protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<IXunitTestCase> testCases, object[] constructorArguments)
-		{
-			return new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
-		}
+				=> new XunitTestMethodRunner(testMethod, Class, method, testCases, DiagnosticMessageSink, MessageBus, new ExceptionAggregator(Aggregator), CancellationTokenSource, constructorArguments).RunAsync();
 
 		/// <inheritdoc/>
 		protected override ConstructorInfo SelectTestClassConstructor()

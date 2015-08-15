@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
@@ -9,7 +8,6 @@ namespace Xunit.Sdk
 	/// <summary>
 	/// Exception thrown when an All assertion has one or more items fail an assertion.
 	/// </summary>
-	[SuppressMessage("Microsoft.Design", "CA1032:ImplementStandardExceptionConstructors")]
 	public class AllException : XunitException
 	{
 #if NET_4_0_ABOVE
@@ -17,7 +15,7 @@ namespace Xunit.Sdk
 #else
 		private readonly IList<Tuple<int, Exception>> errors;
 #endif
-		private readonly int totalItems;
+		readonly int totalItems;
 
 		/// <summary>
 		/// Creates a new instance of the <see cref="AllException"/> class.
@@ -25,7 +23,7 @@ namespace Xunit.Sdk
 		/// <param name="totalItems">The total number of items that were in the collection.</param>
 		/// <param name="errors">The list of errors that occurred during the test pass.</param>
 		public AllException(int totalItems, Tuple<int, Exception>[] errors)
-			: base("Assert.All() Failure")
+				: base("Assert.All() Failure")
 		{
 			this.errors = errors;
 			this.totalItems = totalItems;
@@ -35,13 +33,9 @@ namespace Xunit.Sdk
 		/// The errors that occurred during execution of the test.
 		/// </summary>
 #if NET_4_0_ABOVE
-
 		public IReadOnlyList<Exception> Failures { get { return errors.Select(t => t.Item2).ToList(); } }
-
 #else
-
 		public IList<Exception> Failures { get { return errors.Select(t => t.Item2).ToList(); } }
-
 #endif
 
 		/// <inheritdoc/>
@@ -51,19 +45,19 @@ namespace Xunit.Sdk
 			{
 				var formattedErrors = errors.Select(error =>
 				{
-					var indexString = String.Format(CultureInfo.CurrentCulture, "[{0}]: ", error.Item1);
+					var indexString = string.Format(CultureInfo.CurrentCulture, "[{0}]: ", error.Item1);
 					var spaces = Environment.NewLine + "".PadRight(indexString.Length);
 
 					return indexString + error.Item2.ToString().Replace(Environment.NewLine, spaces);
 				});
 
-				return String.Format(CultureInfo.CurrentCulture,
+				return string.Format(CultureInfo.CurrentCulture,
 														 "{0}: {1} out of {2} items in the collection did not pass.{3}{4}",
 														 base.Message,
 														 errors.Count,
 														 totalItems,
 														 Environment.NewLine,
-														 String.Join(Environment.NewLine, formattedErrors));
+														 string.Join(Environment.NewLine, formattedErrors));
 			}
 		}
 	}

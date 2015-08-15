@@ -57,7 +57,7 @@ namespace Xunit
 			var type = MemberType ?? testMethod.DeclaringType;
 			var accessor = GetPropertyAccessor(type) ?? GetFieldAccessor(type) ?? GetMethodAccessor(type);
 			if (accessor == null)
-				throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Could not find public static member (property, field, or method) named '{0}' on {1}", MemberName, type.FullName));
+				throw new ArgumentException($"Could not find public static member (property, field, or method) named '{MemberName}' on {type.FullName}");
 
 			var obj = accessor();
 			if (obj == null)
@@ -65,7 +65,7 @@ namespace Xunit
 
 			var dataItems = obj as IEnumerable<object>;
 			if (dataItems == null)
-				throw new ArgumentException(String.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable<object>", MemberName, type.FullName));
+				throw new ArgumentException($"Property {MemberName} on {type.FullName} did not return IEnumerable<object>");
 
 			return dataItems.Select(item => ConvertDataItem(testMethod, item));
 		}
@@ -78,7 +78,7 @@ namespace Xunit
 		/// <returns>An <see cref="T:object[]"/> suitable for return from <see cref="GetData"/>.</returns>
 		protected abstract object[] ConvertDataItem(MethodInfo testMethod, object item);
 
-		private Func<object> GetFieldAccessor(Type type)
+		Func<object> GetFieldAccessor(Type type)
 		{
 			FieldInfo fieldInfo = null;
 #if NET_4_0_ABOVE
@@ -103,7 +103,7 @@ namespace Xunit
 			return () => fieldInfo.GetValue(null);
 		}
 
-		private Func<object> GetMethodAccessor(Type type)
+		Func<object> GetMethodAccessor(Type type)
 		{
 			MethodInfo methodInfo = null;
 			var parameterTypes = Parameters == null ? new Type[0] : Parameters.Select(ToParameterType).ToArray();
@@ -129,7 +129,7 @@ namespace Xunit
 			return () => methodInfo.Invoke(null, Parameters);
 		}
 
-		private Func<object> GetPropertyAccessor(Type type)
+		Func<object> GetPropertyAccessor(Type type)
 		{
 			PropertyInfo propInfo = null;
 #if NET_4_0_ABOVE
@@ -157,7 +157,7 @@ namespace Xunit
 			return () => propInfo.GetValue(null, null);
 		}
 
-		private Type ToParameterType(object value)
+		Type ToParameterType(object value)
 		{
 			return value == null ? typeof(object) : value.GetType();
 		}
